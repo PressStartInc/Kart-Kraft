@@ -5,6 +5,7 @@ public class c_terraingen : MonoBehaviour {
 
 	public GameObject p_terrainCell;
 	public int i_resolution;
+	public int i_height;
 	public float[] f_sampleDetails;
 	private int[,] i_heightmap;
 	private Vector2 v2_position; 
@@ -29,9 +30,11 @@ public class c_terraingen : MonoBehaviour {
 		i_heightmap = new int[i_resolution,i_resolution];
 		//Pick random positions on the perlin noise texture
 		v2_perlinOrigins = new Vector2[3];
-		v2_perlinOrigins[0] = new Vector2(Random.Range(0f,1f),Random.Range(0f,1f));
-		v2_perlinOrigins[1] = new Vector2(Random.Range(0f,1f),Random.Range(0f,1f));
-		v2_perlinOrigins[2] = new Vector2(Random.Range(0f,1f),Random.Range(0f,1f));
+		v2_perlinOrigins[0] = new Vector2(Random.Range(0f,10f),Random.Range(0f,10f));
+		//v2_perlinOrigins[0] = new Vector2(9,9);
+		v2_perlinOrigins[1] = new Vector2(Random.Range(0f,10f),Random.Range(0f,10f));
+		//v2_perlinOrigins[1] = new Vector2(8,5);
+		//v2_perlinOrigins[2] = new Vector2(Random.Range(0f,10f),Random.Range(0f,10f));
 		//Sample perlin noise texture for height starting from origins
 		for(int i = 0; i < i_resolution; i++){
 			for(int j = 0; j < i_resolution; j++){
@@ -39,18 +42,33 @@ public class c_terraingen : MonoBehaviour {
 				//Main shape
 				float f_sampleStep = f_sampleDetails[0]/(float)i_resolution;
 				Vector2 v2_samplePosition = new Vector2(v2_perlinOrigins[0].x+(f_sampleStep*i),v2_perlinOrigins[0].y+(f_sampleStep*j));
-				if(v2_samplePosition.x > 10.0) v2_samplePosition.x+= -1;
-				if(v2_samplePosition.y > 10.0) v2_samplePosition.y+= -1;
+				//simplest way to wrap is to mirror...
+				if(v2_samplePosition.x > 10) v2_samplePosition.x = 20-v2_samplePosition.x;
+				if(v2_samplePosition.x > 20) v2_samplePosition.x += -20;
+				if(v2_samplePosition.y > 10) v2_samplePosition.y = 20-v2_samplePosition.y;
+				if(v2_samplePosition.y > 20) v2_samplePosition.y += -20;
+				if(v2_samplePosition.x < 0) v2_samplePosition.x += -(v2_samplePosition.x);
+				if(v2_samplePosition.x < -10) v2_samplePosition.x += 20;
+				if(v2_samplePosition.y < 0) v2_samplePosition.y += -(v2_samplePosition.y);
+				if(v2_samplePosition.y < -10) v2_samplePosition.y += 20;
 				float f_rawSample = Mathf.PerlinNoise(v2_samplePosition.x,v2_samplePosition.y);
+				
+	
 				//Apply Altitude Dampener
-				f_rawSample = AltitudeDampen(f_rawSample);
+				//f_rawSample = AltitudeDampen(f_rawSample);
 				f_sampleSum = f_rawSample;
 				
 				//Medium detail
 				f_sampleStep = f_sampleDetails[1]/(float)i_resolution;
 				v2_samplePosition = new Vector2(v2_perlinOrigins[1].x+(f_sampleStep*i),v2_perlinOrigins[1].y+(f_sampleStep*j));
-				if(v2_samplePosition.x > 10.0) v2_samplePosition.x+= -1;
-				if(v2_samplePosition.y > 10.0) v2_samplePosition.y+= -1;
+				if(v2_samplePosition.x > 10) v2_samplePosition.x = 20-v2_samplePosition.x;
+				if(v2_samplePosition.x > 20) v2_samplePosition.x += -20;
+				if(v2_samplePosition.y > 10) v2_samplePosition.y = 20-v2_samplePosition.y;
+				if(v2_samplePosition.y > 20) v2_samplePosition.y += -20;
+				if(v2_samplePosition.x < 0) v2_samplePosition.x += -(v2_samplePosition.x);
+				if(v2_samplePosition.x < -10) v2_samplePosition.x += 20;
+				if(v2_samplePosition.y < 0) v2_samplePosition.y += -(v2_samplePosition.y);
+				if(v2_samplePosition.y < -10) v2_samplePosition.y += 20;
 				f_rawSample = Mathf.PerlinNoise(v2_samplePosition.x,v2_samplePosition.y);
 				f_rawSample = AltitudeDampen(f_rawSample);
 				switch(s_blendTypes[0]) {
@@ -64,8 +82,32 @@ public class c_terraingen : MonoBehaviour {
 						f_sampleSum=Mathf.Clamp((f_sampleSum+Mathf.Lerp(f_sampleSum,f_rawSample,f_blendStrengths[0]))/2f,0,1);
 						break;
 				}
+				//fine detail
+								f_sampleStep = f_sampleDetails[2]/(float)i_resolution;
+				v2_samplePosition = new Vector2(v2_perlinOrigins[2].x+(f_sampleStep*i),v2_perlinOrigins[2].y+(f_sampleStep*j));
+				if(v2_samplePosition.x > 10) v2_samplePosition.x = 20-v2_samplePosition.x;
+				if(v2_samplePosition.x > 20) v2_samplePosition.x += -20;
+				if(v2_samplePosition.y > 10) v2_samplePosition.y = 20-v2_samplePosition.y;
+				if(v2_samplePosition.y > 20) v2_samplePosition.y += -20;
+				if(v2_samplePosition.x < 0) v2_samplePosition.x += -(v2_samplePosition.x);
+				if(v2_samplePosition.x < -10) v2_samplePosition.x += 20;
+				if(v2_samplePosition.y < 0) v2_samplePosition.y += -(v2_samplePosition.y);
+				if(v2_samplePosition.y < -10) v2_samplePosition.y += 20;
+				f_rawSample = Mathf.PerlinNoise(v2_samplePosition.x,v2_samplePosition.y);
+				f_rawSample = AltitudeDampen(f_rawSample);
+				switch(s_blendTypes[0]) {
+					case "add":
+						f_sampleSum=Mathf.Clamp(f_sampleSum+(f_rawSample*f_blendStrengths[1]),0,1);
+						break;
+					case "subtract":
+						f_sampleSum=Mathf.Clamp(f_sampleSum-(f_rawSample*f_blendStrengths[1]),0,1);
+						break;
+					case "average":
+						f_sampleSum=Mathf.Clamp((f_sampleSum+Mathf.Lerp(f_sampleSum,f_rawSample,f_blendStrengths[1]))/2f,0,1);
+						break;
+				}
 				//Create blocks
-				i_heightmap[i,j] = (int)(f_sampleSum*i_resolution);
+				i_heightmap[i,j] = (int)(f_sampleSum*i_height);
 				Instantiate(p_terrainCell,new Vector3(i,i_heightmap[i,j],j),Quaternion.identity);
 			}
 		}
