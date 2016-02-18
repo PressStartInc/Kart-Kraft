@@ -10,8 +10,10 @@ public class c_terraingen : MonoBehaviour {
 	private int[,] i_heightmap;
 	private Vector2 v2_position; 
 	private Vector2[] v2_perlinOrigins;
-	public float f_altDampenStrength;
+	public bool[] b_dampenDetail;
 	public float f_altDampenStart;
+	public float f_altDampenStrength;
+	
 	public string[] s_blendTypes; //add, subtract, average
 	public float[] f_blendStrengths;
 	
@@ -55,7 +57,7 @@ public class c_terraingen : MonoBehaviour {
 				
 	
 				//Apply Altitude Dampener
-				//f_rawSample = AltitudeDampen(f_rawSample);
+				if(b_dampenDetail[0]) f_rawSample = AltitudeDampen(f_rawSample);
 				f_sampleSum = f_rawSample;
 				
 				//Medium detail
@@ -70,7 +72,8 @@ public class c_terraingen : MonoBehaviour {
 				if(v2_samplePosition.y < 0) v2_samplePosition.y += -(v2_samplePosition.y);
 				if(v2_samplePosition.y < -10) v2_samplePosition.y += 20;
 				f_rawSample = Mathf.PerlinNoise(v2_samplePosition.x,v2_samplePosition.y);
-				f_rawSample = AltitudeDampen(f_rawSample);
+				//Apply Altitude Dampener
+				if(b_dampenDetail[0]) f_rawSample = AltitudeDampen(f_rawSample);
 				switch(s_blendTypes[0]) {
 					case "add":
 						f_sampleSum=Mathf.Clamp(f_sampleSum+(f_rawSample*f_blendStrengths[0]),0,1);
@@ -83,7 +86,7 @@ public class c_terraingen : MonoBehaviour {
 						break;
 				}
 				//fine detail
-								f_sampleStep = f_sampleDetails[2]/(float)i_resolution;
+				f_sampleStep = f_sampleDetails[2]/(float)i_resolution;
 				v2_samplePosition = new Vector2(v2_perlinOrigins[2].x+(f_sampleStep*i),v2_perlinOrigins[2].y+(f_sampleStep*j));
 				if(v2_samplePosition.x > 10) v2_samplePosition.x = 20-v2_samplePosition.x;
 				if(v2_samplePosition.x > 20) v2_samplePosition.x += -20;
@@ -94,7 +97,8 @@ public class c_terraingen : MonoBehaviour {
 				if(v2_samplePosition.y < 0) v2_samplePosition.y += -(v2_samplePosition.y);
 				if(v2_samplePosition.y < -10) v2_samplePosition.y += 20;
 				f_rawSample = Mathf.PerlinNoise(v2_samplePosition.x,v2_samplePosition.y);
-				f_rawSample = AltitudeDampen(f_rawSample);
+				//Apply Altitude Dampener
+				if(b_dampenDetail[0]) f_rawSample = AltitudeDampen(f_rawSample);
 				switch(s_blendTypes[0]) {
 					case "add":
 						f_sampleSum=Mathf.Clamp(f_sampleSum+(f_rawSample*f_blendStrengths[1]),0,1);
