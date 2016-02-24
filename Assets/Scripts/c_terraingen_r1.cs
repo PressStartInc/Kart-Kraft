@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class c_terraingen : MonoBehaviour {
-
+public class c_terraingen_old : MonoBehaviour {
+	
 	public GameObject p_terrainCell;
 	public int i_resolution;
 	public int i_height;
