@@ -16,21 +16,22 @@ public class c_terraingen_r3 : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		init = false;
-		Randomize();
+		
 		i_counter = 0;
-		go_focalPoint.transform.position = new Vector3(go_focalPoint.transform.position.x,i_yRes+10,go_focalPoint.transform.position.z);
+		//go_focalPoint.transform.position = new Vector3(go_focalPoint.transform.position.x,i_yRes+10,go_focalPoint.transform.position.z);
 		go_localBlocks = new GameObject[i_xzRes,i_xzRes];
 		v2_perlinOrigins[0] = new Vector2(Random.Range(0,10),Random.Range(0,10));
 		v2_perlinOrigins[1] = new Vector2(Random.Range(0,10),Random.Range(0,10));
 		v2_curPos.x = v2_prevPos.x = Mathf.Floor(go_focalPoint.transform.position.x);
 		v2_curPos.y = v2_prevPos.y = Mathf.Floor(go_focalPoint.transform.position.z);
-		StartCoroutine(UpdateTerrain());
+		Randomize();
+		//StartCoroutine(UpdateTerrain());
 		
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyUp(KeyCode.F1)) Application.LoadLevel(Application.loadedLevel);
+		if(Input.GetKeyUp(KeyCode.F1)) Randomize();
 		v2_curPos = new Vector2(Mathf.Floor(go_focalPoint.transform.position.x),Mathf.Floor(go_focalPoint.transform.position.z));
 		if(v2_curPos != v2_prevPos) {
 			StartCoroutine(UpdateTerrain());
@@ -84,13 +85,14 @@ public class c_terraingen_r3 : MonoBehaviour {
 	if(!init)init = true;
 	}
 	public void Randomize() {
-		i_yRes = Random.Range(0,i_xzRes);
-		go_focalPoint.transform.position = new Vector3(go_focalPoint.transform.position.x,i_yRes/3*2,go_focalPoint.transform.position.z);
-		f_blend = Random.Range(0f,1f);
+		i_yRes = Random.Range(i_xzRes/2,i_xzRes);
+		//go_focalPoint.transform.position = new Vector3(go_focalPoint.transform.position.x,i_yRes/3*2,go_focalPoint.transform.position.z);
+		f_blend = Random.Range(25f,75f);
 		f_elevationSmoothHeight = Random.Range(0f,1f);
 		f_elevationSmoothStrength = Random.Range(0f,1f);
-		f_sampleSizes[0] = Random.Range(0f,10f);
-		f_sampleSizes[1] = Random.Range(f_sampleSizes[0],10f);
+		f_sampleSizes[0] = Random.Range(0f,4f);
+		f_sampleSizes[1] = Random.Range(f_sampleSizes[0]/2,10f);
+		StartCoroutine(UpdateTerrain());
 	}
 }
 
