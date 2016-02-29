@@ -2,83 +2,89 @@ using UnityEngine;
 using System.Collections;
 
 public class KartController : MonoBehaviour {
+	//TODO: consolidate where raycast are being drawn to condense code; similiar to axleinfo in KartController3.cs
+	// Ideally FixedUpdate() will have a for loop so there is no repeated code
+	// Implement traction;
 	private Rigidbody rb;
-	private Vector3 fric;
-	private Vector3 wFric;
+	private Vector3 frontLeft;
+	private Vector3 frontRight;
+	private Vector3 backLeft;
+	private Vector3 backRight;
 
-//	private Vector2 loc;
-//	private float heading;
-//	private float steerAngle;
-//	private float wheelBase; //Imagine two wheels for simplicity. This is distance between them.
+	public float width;
+	public float height;
+	public float length;
 
-	public float friction;
-	public float wFriction;
 	public float accel;
-	public float maxSpeed;
-	public float rotSpeed;
-	public float maxRotSpeed;
+	public float steer;
 
-	void Start () {
-//		loc = new Vector2 (this.transform.position.x, this.transform.position.z);
-//		wheelBase = 1.0f;
-//		heading = (float)Mathf.Atan2 ((loc.y + wheelBase / 2) - (loc.y - wheelBase / 2), (loc.x + wheelBase / 2) - (loc.x - wheelBase / 2));
-		accel = 5.0f;
-//		wFric = new Vector3 (0.0f, wFriction, 0.0f);
-		rb = this.GetComponent<Rigidbody> ();	
+	public float distOffGround;
+	public float liftForce;
+	public float liftDamp;
+
+	void Start() {
+		rb = this.GetComponent<Rigidbody> ();
 	}
 
-	void FixedUpdate () {
-		// velocity
-		if (Input.GetKey ("up")) {
-			rb.AddForce (transform.forward * accel * Time.deltaTime);
-		} else if (Input.GetKey ("down")) {
-			rb.AddForce (transform.forward * -accel * Time.deltaTime);
-		} 
-		
-		//angular velocity
-		if (Input.GetKey ("left")) {
-			rb.AddTorque (transform.up * -rotSpeed * Time.deltaTime);
-		} else if (Input.GetKey ("right")) {
-			rb.AddTorque (transform.up * rotSpeed * Time.deltaTime);
-		} 
-		//		else {
-		//			Debug.Log(rb.angularVelocity);
-		//			if (rb.angularVelocity.magnitude < 0.0f) {
-		//				rb.angularVelocity -= new Vector3 (0.0f, 3*Time.deltaTime, 0.0f);//Vector3.Min (Vector3.zero, rb.angularVelocity + wFric * Time.deltaTime);
-		////				rb.angularVelocity = new Vector3(
-		////					0.0f,
-		////					Mathf.Lerp(rb.angularVelocity.magnitude, 0.0f, Time.deltaTime * wFriction),
-		////					0.0f
-		////				);
-		//			} else if (rb.angularVelocity.magnitude > 0.0f) {
-		//				rb.angularVelocity = new Vector3(
-		//					0.0f,
-		//					Mathf.Lerp(rb.angularVelocity.magnitude, 0.0f, Time.deltaTime * wFriction),
-		//					0.0f
-		//				);
-		//			} 
-		//			Debug.Log(rb.angularVelocity);
-		//		} 
+	//Physics stuff
+	void FixedUpdate() {
+		// Accleration / Braking and Turning
+		if (Input.GetAxis ("Vertical") != 0) 
+			rb.AddForce(transform.forward * Input.GetAxis("Vertical") * accel, ForceMode.Acceleration);
+		if (Input.GetAxis ("Horizontal") != 0)
+			rb.AddRelativeTorque(transform.up * Input.GetAxis ("Horizontal") * steer);
 
-//		if (Input.GetKey ("left")) {
-//			steerAngle = -5.0f;
-//		} else if (Input.GetKey ("right")) {
-//			steerAngle = 5.0f;
-//		} else {
-//			steerAngle = 0.0f;
-//		}
-//
-//		Vector2 frontWheel = loc + wheelBase / 2 * new Vector2(Mathf.Cos(heading), Mathf.Sin(heading));
-//		Vector2 backWheel  = loc - wheelBase / 2 * new Vector2(Mathf.Cos(heading), Mathf.Sin(heading));
-//
-//		backWheel  += speed * Time.deltaTime * new Vector2(Mathf.Cos(heading), Mathf.Sin(heading));
-//		frontWheel += speed * Time.deltaTime * new Vector2(Mathf.Cos(heading + steerAngle), Mathf.Sin(heading + steerAngle));
-//
-//		
-//		loc = (frontWheel + backWheel) / 2;
-//		transform.forward = Vector3.Normalize (new Vector3 (loc.x, 0.5f, loc.y) - transform.position);
-//		heading = Mathf.Atan2(frontWheel.y - backWheel.y, frontWheel.x - backWheel.x);
-//		transform.position = new Vector3 (loc.x, 0.5f, loc.y);
+		//Set suspensions at each corner of kart
+		//-transform.up points ray down towards ground
+		frontRight = transform.TransformPoint(width/2, -height/2, length/2);
+		frontLeft = transform.TransformPoint(-width/2, -height/2, length/2);
+		backRight = transform.TransformPoint(width/2, -height/2, -length/2);
+		backLeft = transform.TransformPoint(-width/2, -height/2, -length/2);
 
+		//Grab ray hit info
+		RaycastHit frHit;
+		RaycastHit flHit;
+		RaycastHit rrHit;
+		RaycastHit rlHit;
+
+		//Apply suspension - Makes car act more like a hovercraft than a car with springs. Needs tweaking
+		if (Physics.Raycast (frontRight, -transform.up, out frHit, distOffGround)) {
+			float suspError = distOffGround - frHit.distance;
+			if (suspError > 0) {
+				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
+				rb.AddForceAtPosition(Vector3.up*lift, frontRight);
+			}
+		}
+		if (Physics.Raycast (frontLeft, -transform.up, out flHit, distOffGround)) {
+			float suspError = distOffGround - flHit.distance;
+			if (suspError > 0) {
+				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
+				rb.AddForceAtPosition(Vector3.up*lift, frontLeft);
+			}
+		}
+		if (Physics.Raycast (backRight, -transform.up, out rrHit, distOffGround)) {
+			float suspError = distOffGround - rrHit.distance;
+			if (suspError > 0) {
+				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
+				rb.AddForceAtPosition(Vector3.up*lift,backRight);
+			}
+		}
+		if (Physics.Raycast (backLeft,-transform.up, out rlHit, distOffGround)) {
+			float suspError = distOffGround - frHit.distance;
+			if (suspError > 0) {
+				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
+				rb.AddForceAtPosition(Vector3.up*lift, backLeft);
+			}
+		}
+
+
+		Debug.DrawRay (frontRight, -transform.up * distOffGround);
+		Debug.DrawRay (frontLeft, -transform.up * distOffGround);
+		Debug.DrawRay (backRight, -transform.up * distOffGround);
+		Debug.DrawRay (backLeft, -transform.up * distOffGround);
+
+
+//		if (Input.GetKey("space"))
+//			rb.AddForceAtPosition(Vector3.up*25,-length/2, ForceMode.Impulse);
 	}
 }
