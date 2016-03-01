@@ -7,6 +7,7 @@ public class c_terrainDemoPlayerController : MonoBehaviour {
 	public c_terraingen_r3 c_controller;
 	public GameObject go_nearestBlock;
 	public Vector2 v2_gridPos, v2_prevPos;
+	public float f_rotation, f_curRotation, f_prevRotation;
 	// Use this for initialization
 	void Start () {
 	f_origDownSpeed = f_downSpeed;
@@ -15,6 +16,8 @@ public class c_terrainDemoPlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		f_curRotation = transform.rotation.y;
+		if(f_curRotation != f_prevRotation) f_rotation += Mathf.Abs(f_curRotation-f_prevRotation);
 		v2_gridPos = new Vector2(Mathf.Floor(transform.position.x),Mathf.Floor(transform.position.z));
 		if(v2_gridPos != v2_prevPos) {
 			for(int i = 0; i < c_controller.i_xzRes; i++) {
@@ -43,5 +46,7 @@ public class c_terrainDemoPlayerController : MonoBehaviour {
 	else if(Input.GetKey(KeyCode.S)) transform.Translate(new Vector3(0,0,(-1*Time.deltaTime*f_horizontalSpeed*0.5f)));
 	if(Input.GetKey(KeyCode.A)) transform.Rotate(new Vector3(0,-1*Time.deltaTime*f_rotateSpeed,0));
 	else if(Input.GetKey(KeyCode.D)) transform.Rotate(new Vector3(0,1*Time.deltaTime*f_rotateSpeed,0));
+	
+	f_prevRotation = f_curRotation;
 	}
 }
