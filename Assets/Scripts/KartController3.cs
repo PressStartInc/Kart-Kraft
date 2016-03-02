@@ -5,9 +5,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class Axles {
 	public WheelCollider leftWheel;
-	public WheelCollider rightWheel;
-	public Transform lw;
-	public Transform rw;
+	public WheelCollider rightWheel; 
 	public bool motor;		//Is this wheel attached to a motor?
 	public bool steering;	//Does this wheel apply steering?
 }
@@ -26,20 +24,19 @@ public class KartController3 : MonoBehaviour {
 		rb.centerOfMass = new Vector3 (0.0f, -0.5f, 0.3f);	
 	}
 
-	//Make the wheels spin
-	void Update() {
-		if (rb.velocity.magnitude > 0) {
-			foreach (Axles axleInfo in axleInfos) {
-				axleInfo.lw.Rotate (Vector3.down * Time.deltaTime* rb.velocity.magnitude);
-				axleInfo.rw.Rotate (Vector3.down * Time.deltaTime* rb.velocity.magnitude);
-			}
-		}
-		else if (rb.velocity.magnitude < 0) {
-			foreach (Axles axleInfo in axleInfos) {
-				axleInfo.lw.Rotate (Vector3.up * Time.deltaTime* rb.velocity.magnitude);
-				axleInfo.rw.Rotate (Vector3.up * Time.deltaTime* rb.velocity.magnitude);
-			}
-		}
+	//Grab visual wheel and apply transform
+	void ApplyLocalPositionToVisualWheel(WheelCollider collider){
+		if (collider.transform.childCount == 0) 
+			return;
+
+		Transform visWheel = collider.transform.GetChild (0);
+
+		Vector3 position; //= collider.transform.localPosition;
+		Quaternion rotation;// = collider.transform.localRotation;
+		collider.GetWorldPose (out position, out rotation);
+
+		visWheel.transform.position = position;//collider.transform.parent.TransformPoint (position);
+		visWheel.transform.rotation = rotation;//collider.transform.parent.rotation * rotation;
 	}
 	// The physics stuff
 	void FixedUpdate () {
@@ -70,7 +67,8 @@ public class KartController3 : MonoBehaviour {
 				axleInfo.leftWheel.brakeTorque = brake;
 				axleInfo.rightWheel.brakeTorque = brake;
 			}
+			ApplyLocalPositionToVisualWheel (axleInfo.leftWheel);
+			ApplyLocalPositionToVisualWheel (axleInfo.rightWheel);
 		}
-
 	}
 }	

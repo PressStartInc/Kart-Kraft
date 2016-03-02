@@ -17,6 +17,8 @@ public class KartController : MonoBehaviour {
 
 	public float accel;
 	public float steer;
+	//Min Velocity to be able to turn
+	public float soYouWantToTurnHuh;
 
 	public float distOffGround;
 	public float liftForce;
@@ -24,16 +26,11 @@ public class KartController : MonoBehaviour {
 
 	void Start() {
 		rb = this.GetComponent<Rigidbody> ();
+		rb.centerOfMass = new Vector3 (0.0f, -1.0f, 0.0f);
 	}
 
 	//Physics stuff
 	void FixedUpdate() {
-		// Accleration / Braking and Turning
-		if (Input.GetAxis ("Vertical") != 0) 
-			rb.AddForce(transform.forward * Input.GetAxis("Vertical") * accel, ForceMode.Acceleration);
-		if (Input.GetAxis ("Horizontal") != 0)
-			rb.AddRelativeTorque(transform.up * Input.GetAxis ("Horizontal") * steer);
-
 		//Set suspensions at each corner of kart
 		//-transform.up points ray down towards ground
 		frontRight = transform.TransformPoint(width/2, -height/2, length/2);
@@ -83,8 +80,24 @@ public class KartController : MonoBehaviour {
 		Debug.DrawRay (backRight, -transform.up * distOffGround);
 		Debug.DrawRay (backLeft, -transform.up * distOffGround);
 
+		Debug.Log (rrHit.distance);
 
-//		if (Input.GetKey("space"))
-//			rb.AddForceAtPosition(Vector3.up*25,-length/2, ForceMode.Impulse);
+		// Accleration / Braking and Turning
+
+		//Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
+		if (rrHit.distance <= distOffGround && rrHit.distance > 0
+		    && frHit.distance <= distOffGround && rrHit.distance > 0 
+		    && flHit.distance <= distOffGround && rrHit.distance > 0 
+		    && rlHit.distance <= distOffGround && rrHit.distance > 0) {
+			if (Input.GetAxis ("Vertical") != 0) 
+				rb.AddForce (transform.forward * Input.GetAxis ("Vertical") * accel, ForceMode.Acceleration);
+		}
+		// Reverse inverts steering direction; Mapping to controller should handle this
+		if (Input.GetAxis ("Horizontal") != 0)
+			rb.AddRelativeTorque(transform.up * Mathf.Lerp(
+				0.0f, 
+				Input.GetAxis ("Horizontal") * steer,
+				rb.velocity.magnitude - soYouWantToTurnHuh //DO I WANT TO NOMALIZE THIS?
+			));
 	}
 }
