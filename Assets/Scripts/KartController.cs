@@ -24,6 +24,10 @@ public class KartController : MonoBehaviour {
 	public float liftForce;
 	public float liftDamp;
 
+	public Texture speedOMeterDial;
+	public Texture speedOMeterPointer;
+	public int place;
+
 	void Start() {
 		rb = this.GetComponent<Rigidbody> ();
 		rb.centerOfMass = new Vector3 (0.0f, -1.0f, 0.0f);
@@ -100,4 +104,34 @@ public class KartController : MonoBehaviour {
 				rb.velocity.magnitude - soYouWantToTurnHuh //DO I WANT TO NOMALIZE THIS?
 			));
 	}
+	/*
+	void OnGUI () {
+		GUI.DrawTexture (Rect (Screen.width - 300, Screen.height - 150, 300, 150), speedOMeterDial);
+		float speedFactor = currentSpeed / topSpeed;
+		float rotationAngle;
+		if (currentSpeed >= 0) {
+			rotationAngle = Mathf.Lerp (0, 180, speedFactor);
+		} else {
+			rotationAngle = Mathf.Lerp (0, 180, -speedFactor);
+		}
+		GUIUtility.RotateAroundPivot (rotationAngle, Vector2 (Screen.width - 150, Screen.height));
+		GUI.DrawTexture (Rect (Screen.width - 300, Screen.height - 150, 300, 300), speedOMeterPointer);
+	}
+
+	void Placing () {
+		if(place == 1) {
+			//Display 1st Place Texture
+		}
+		else if(place == 2) {
+			//Display 2nd Place Texture
+		}
+		else if(place == 3) {
+			//Display 3rd Place Texture
+		}
+		else {
+			//Display 4th Place Texture
+		}
+	}
+	*/
+
 }
