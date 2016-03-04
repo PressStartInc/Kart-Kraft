@@ -28,6 +28,11 @@ public class KartController : MonoBehaviour {
 	public Texture speedOMeterPointer;
 	public int place;
 
+    private bool boosting;
+    private float boostDuration;
+
+    private int heldItem = 0;
+
 	void Start() {
 		rb = this.GetComponent<Rigidbody> ();
 		rb.centerOfMass = new Vector3 (0.0f, -1.0f, 0.0f);
@@ -86,10 +91,19 @@ public class KartController : MonoBehaviour {
 
 		Debug.Log (rrHit.distance);
 
-		// Accleration / Braking and Turning
 
-		//Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
-		if (rrHit.distance <= distOffGround && rrHit.distance > 0
+        // Accleration / Braking and Turning
+
+        //Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
+        if (boosting)
+        {
+            if (boostDuration == 0)
+                boosting = false;
+            boostDuration -= Time.deltaTime;
+            //rb.velocity = Vector3.forward * (float)System.Math.Sqrt(maxSpeed);
+            rb.velocity = transform.forward * 100;
+        }
+        else if (rrHit.distance <= distOffGround && rrHit.distance > 0
 		    && frHit.distance <= distOffGround && rrHit.distance > 0 
 		    && flHit.distance <= distOffGround && rrHit.distance > 0 
 		    && rlHit.distance <= distOffGround && rrHit.distance > 0) {
@@ -103,7 +117,37 @@ public class KartController : MonoBehaviour {
 				Input.GetAxis ("Horizontal") * steer,
 				rb.velocity.magnitude - soYouWantToTurnHuh //DO I WANT TO NOMALIZE THIS?
 			));
+
+        //Press left shift to use item
+        if (Input.GetKeyDown("left shift"))
+            useItem();
+        Debug.Log("Item: " + heldItem);
 	}
+
+    void OnTriggerEnter (Collider other)
+    {
+        if (other.gameObject.CompareTag("PickUp"))
+        {
+            if(other.gameObject.transform.parent.CompareTag("Speed Boost"))
+            {
+                //other.gameObject.transform.parent.gameObject.SetActive(false);
+                Destroy(other.gameObject.transform.parent.gameObject);
+                heldItem = 1;
+            }
+        }
+    }
+
+    void useItem()
+    {
+        if (heldItem == 0)
+            return;
+        if (heldItem == 1)
+        {
+            boosting = true;
+            boostDuration = 3.0f;
+        }
+    }
+
 	/*
 	void OnGUI () {
 		GUI.DrawTexture (Rect (Screen.width - 300, Screen.height - 150, 300, 150), speedOMeterDial);
