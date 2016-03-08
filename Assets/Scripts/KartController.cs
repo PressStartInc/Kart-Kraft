@@ -2,9 +2,6 @@ using UnityEngine;
 using System.Collections;
 
 public class KartController : MonoBehaviour {
-	//TODO: consolidate where raycast are being drawn to condense code; similiar to axleinfo in KartController3.cs
-	// Ideally FixedUpdate() will have a for loop so there is no repeated code
-	// Implement traction;
 	private Rigidbody rb;
 	private Vector3 frontLeft;
 	private Vector3 frontRight;
@@ -42,10 +39,10 @@ public class KartController : MonoBehaviour {
 	void FixedUpdate() {
 		//Set suspensions at each corner of kart
 		//-transform.up points ray down towards ground
-		frontRight = transform.TransformPoint(width/2, -height/2, length/2);
-		frontLeft = transform.TransformPoint(-width/2, -height/2, length/2);
-		backRight = transform.TransformPoint(width/2, -height/2, -length/2);
-		backLeft = transform.TransformPoint(-width/2, -height/2, -length/2);
+		frontRight = transform.TransformPoint(width/2, -height/32, length/2);
+		frontLeft = transform.TransformPoint(-width/2, -height/32, length/2);
+		backRight = transform.TransformPoint(width/2, -height/32, -length/2);
+		backLeft = transform.TransformPoint(-width/2, -height/32, -length/2);
 
 		//Grab ray hit info
 		RaycastHit frHit;
@@ -76,7 +73,7 @@ public class KartController : MonoBehaviour {
 			}
 		}
 		if (Physics.Raycast (backLeft,-transform.up, out rlHit, distOffGround)) {
-			float suspError = distOffGround - frHit.distance;
+			float suspError = distOffGround - rlHit.distance;
 			if (suspError > 0) {
 				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
 				rb.AddForceAtPosition(Vector3.up*lift, backLeft);
@@ -84,35 +81,33 @@ public class KartController : MonoBehaviour {
 		}
 
 
-		Debug.DrawRay (frontRight, -transform.up * distOffGround);
-		Debug.DrawRay (frontLeft, -transform.up * distOffGround);
-		Debug.DrawRay (backRight, -transform.up * distOffGround);
-		Debug.DrawRay (backLeft, -transform.up * distOffGround);
+		Debug.DrawRay (frontRight, -transform.up * distOffGround, Color.cyan);
+		Debug.DrawRay (frontLeft, -transform.up * distOffGround, Color.cyan);
+		Debug.DrawRay (backRight, -transform.up * distOffGround, Color.cyan);
+		Debug.DrawRay (backLeft, -transform.up * distOffGround, Color.cyan);
 
 		Debug.Log (rrHit.distance);
 
 
         // Accleration / Braking and Turning
-
-        //Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
         if (boosting)
         {
             if (boostDuration == 0)
                 boosting = false;
             boostDuration -= Time.deltaTime;
             //rb.velocity = Vector3.forward * (float)System.Math.Sqrt(maxSpeed);
-            rb.velocity = transform.forward * 100;
-        }
+            rb.velocity = -transform.forward * 100;
+		} //Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
         else if (rrHit.distance <= distOffGround && rrHit.distance > 0
 		    && frHit.distance <= distOffGround && rrHit.distance > 0 
 		    && flHit.distance <= distOffGround && rrHit.distance > 0 
 		    && rlHit.distance <= distOffGround && rrHit.distance > 0) {
 			if (Input.GetAxis ("Vertical") != 0) 
-				rb.AddForce (transform.forward * Input.GetAxis ("Vertical") * accel, ForceMode.Acceleration);
+				rb.AddForce (-transform.forward * Input.GetAxis ("Vertical") * accel, ForceMode.Acceleration);
 		}
 		// Reverse inverts steering direction; Mapping to controller should handle this
 		if (Input.GetAxis ("Horizontal") != 0)
-			rb.AddRelativeTorque(transform.up * Mathf.Lerp(
+			rb.AddTorque(transform.up * Mathf.Lerp(
 				0.0f, 
 				Input.GetAxis ("Horizontal") * steer,
 				rb.velocity.magnitude - soYouWantToTurnHuh //DO I WANT TO NOMALIZE THIS?
