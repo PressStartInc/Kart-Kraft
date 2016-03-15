@@ -8,6 +8,13 @@ public class KartController : MonoBehaviour {
 	private float currAccel;
 	private float currSteer;
 
+	private bool boosting;
+	private float boostDuration;
+	
+	private int heldItem = 0;
+
+	public string player;
+
 	public float width;
 	public float height;
 	public float length;
@@ -16,6 +23,7 @@ public class KartController : MonoBehaviour {
 	public float steer;
 	//Min Velocity to be able to turn
 	public float soYouWantToTurnHuh;
+	public float maxSpeed;
 
 	public float distOffGround;
 	public float liftForce;
@@ -24,11 +32,6 @@ public class KartController : MonoBehaviour {
 	public Texture speedOMeterDial;
 	public Texture speedOMeterPointer;
 	public int place;
-
-    private bool boosting;
-    private float boostDuration;
-
-    private int heldItem = 0;
 
 	void Start() {
 		rb = this.GetComponent<Rigidbody> ();
@@ -41,18 +44,24 @@ public class KartController : MonoBehaviour {
 	void Update() {
 		//Drive / Reverse
 		currAccel = 0.0f;
-		float accelAxis = Input.GetAxis ("Vertical");
-		if (accelAxis != 0)
-			currAccel = accelAxis * accel;
+		float accelAxis = 0.0f; //Input.GetAxis ("Vertical");
+//		if (accelAxis != 0)
+//			currAccel = accelAxis * accel;
+		if (Input.GetKey ("joystick " + player + " button 1")) // x
+			accelAxis = 1.0f;
+		else if (Input.GetKey ("joystick " + player + " button 0")) // o
+			accelAxis = -1.0f;
+		currAccel = accelAxis * accel;
+
 		//Steer
 		currSteer = 0.0f;
-		float steerAxis = Input.GetAxis ("Horizontal");
+		float steerAxis = Input.GetAxis ("p"+player+"Steer");
 		if (Mathf.Abs (steerAxis) != 0) {
 			currSteer = steerAxis;
 		}
 
 		//Use item in inventory 
-		if (Input.GetKeyDown("left shift"))
+		if (Input.GetKey ("joystick " + player + " button 0")) //sq
 			useItem();
 	}
 
@@ -80,7 +89,8 @@ public class KartController : MonoBehaviour {
             rb.velocity = -transform.forward * 100;
 		} //Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
         else if (grounded) {
-			rb.AddForce (-transform.forward * currAccel, ForceMode.Acceleration);
+			if (rb.velocity.sqrMagnitude < maxSpeed)
+				rb.AddForce (-transform.forward * currAccel, ForceMode.Acceleration);
 		}
 		// Reverse inverts steering direction; Mapping to controller should handle this
 		if (currSteer != 0)
