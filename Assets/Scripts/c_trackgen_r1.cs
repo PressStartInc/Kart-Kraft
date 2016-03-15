@@ -43,13 +43,13 @@ public class c_trackgen_r1 : MonoBehaviour {
 				
 				int i_objY;
 				float[] f_rawY = new float[4];
-				f_rawY[0] = c_terraingen.SampleTerrain(v2_cornerPoints[0])*c_terraingen.i_yRes;
+				f_rawY[0] = c_terraingen.SampleTerrain(v2_cornerPoints[0],c_terraingen.f_trackRoughness)*c_terraingen.i_yRes;
 				i_objY = (int)Mathf.Floor(f_rawY[0]);
-				f_rawY[1] = c_terraingen.SampleTerrain(v2_cornerPoints[1])*c_terraingen.i_yRes;
+				f_rawY[1] = c_terraingen.SampleTerrain(v2_cornerPoints[1],c_terraingen.f_trackRoughness)*c_terraingen.i_yRes;
 				if(i_objY > (int)Mathf.Floor(f_rawY[1])) i_objY = (int)Mathf.Floor(f_rawY[1]);
-				f_rawY[2] = c_terraingen.SampleTerrain(v2_cornerPoints[2])*c_terraingen.i_yRes;
+				f_rawY[2] = c_terraingen.SampleTerrain(v2_cornerPoints[2],c_terraingen.f_trackRoughness)*c_terraingen.i_yRes;
 				if(i_objY > (int)Mathf.Floor(f_rawY[2])) i_objY = (int)Mathf.Floor(f_rawY[2]);
-				f_rawY[3] = c_terraingen.SampleTerrain(v2_cornerPoints[3])*c_terraingen.i_yRes;
+				f_rawY[3] = c_terraingen.SampleTerrain(v2_cornerPoints[3],c_terraingen.f_trackRoughness)*c_terraingen.i_yRes;
 				if(i_objY > (int)Mathf.Floor(f_rawY[3])) i_objY = (int)Mathf.Floor(f_rawY[3]);
 				go_curTrack.transform.position = new Vector3(go_curTrack.transform.position.x,go_curTrack.transform.position.y+i_objY,go_curTrack.transform.position.z);
 				//float f_newVertex = c_terraingen.SampleTerrain(v2_cornerPoints[0])*c_terraingen.i_yRes;
