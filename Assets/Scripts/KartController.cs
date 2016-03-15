@@ -49,19 +49,20 @@ public class KartController : MonoBehaviour {
 //			currAccel = accelAxis * accel;
 		if (Input.GetKey ("joystick " + player + " button 1")) // x
 			accelAxis = 1.0f;
-		else if (Input.GetKey ("joystick " + player + " button 0")) // o
+		else if (Input.GetKey ("joystick " + player + " button 0")) // sq
 			accelAxis = -1.0f;
 		currAccel = accelAxis * accel;
 
 		//Steer
 		currSteer = 0.0f;
 		float steerAxis = Input.GetAxis ("p"+player+"Steer");
+		Debug.Log ("Steer: " + steerAxis);
 		if (Mathf.Abs (steerAxis) != 0) {
 			currSteer = steerAxis;
 		}
 
 		//Use item in inventory 
-		if (Input.GetKey ("joystick " + player + " button 0")) //sq
+		if (Input.GetKey ("joystick " + player + " button 2")) // o , i think
 			useItem();
 	}
 
@@ -80,25 +81,39 @@ public class KartController : MonoBehaviour {
 		}
 
         // Accleration / Braking and Turning
-        if (boosting)
-        {
-            if (boostDuration <= 0)
-                boosting = false;
-            boostDuration -= Time.deltaTime;
-            //rb.velocity = Vector3.forward * (float)System.Math.Sqrt(maxSpeed);
-            rb.velocity = -transform.forward * 100;
-		} //Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
-        else if (grounded) {
+        if (boosting) {
+			if (boostDuration <= 0)
+				boosting = false;
+			boostDuration -= Time.deltaTime;
+			//rb.velocity = Vector3.forward * (float)System.Math.Sqrt(maxSpeed);
+			rb.velocity = -transform.forward * 100;
+		} else if (grounded) {
+			//Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
 			if (rb.velocity.sqrMagnitude < maxSpeed)
 				rb.AddForce (-transform.forward * currAccel, ForceMode.Acceleration);
-		}
-		// Reverse inverts steering direction; Mapping to controller should handle this
-		if (currSteer != 0)
-			rb.AddTorque(transform.up * Mathf.Lerp(
+		
+			//Steering
+			if (currSteer != 0)
+				rb.AddTorque (transform.up * Mathf.Lerp (
 				0.0f, 
 				currSteer * steer,
 				rb.velocity.magnitude - soYouWantToTurnHuh //DO I WANT TO NOMALIZE THIS?
-			));
+				));
+		}
+
+		// Pseudo-traction/handing
+
+		//Prevent sideways sliding of rigidbody. Set this factor between 0 and 1.
+		float LateralSpeedFactor = 0.1f;
+		
+		//Inverse transform rigidbody velocity from world to local coordinates
+		Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
+		
+		//Remove X (sideways) component of local velocity
+		localVelocity.x *= LateralSpeedFactor;
+		
+		//Apply new velocity to rigidbody by transforming local velocity back to world coordinates
+		rb.velocity = transform.TransformDirection(localVelocity);
 	}
 
 	void SuspensionCalucaltion(Vector3 wheelLoc) {
