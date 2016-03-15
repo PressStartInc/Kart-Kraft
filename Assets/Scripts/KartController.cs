@@ -3,10 +3,10 @@ using System.Collections;
 
 public class KartController : MonoBehaviour {
 	private Rigidbody rb;
-	private Vector3 frontLeft;
-	private Vector3 frontRight;
-	private Vector3 backLeft;
-	private Vector3 backRight;
+	private Vector3[] suspPoints;
+	private bool grounded;
+	private float currAccel;
+	private float currSteer;
 
 	public float width;
 	public float height;
@@ -33,90 +33,81 @@ public class KartController : MonoBehaviour {
 	void Start() {
 		rb = this.GetComponent<Rigidbody> ();
 		rb.centerOfMass = new Vector3 (0.0f, -1.0f, 0.0f);
+
+		suspPoints = new Vector3[4];
+	}
+
+	//Gather Input
+	void Update() {
+		//Drive / Reverse
+		currAccel = 0.0f;
+		float accelAxis = Input.GetAxis ("Vertical");
+		if (accelAxis != 0)
+			currAccel = accelAxis * accel;
+		//Steer
+		currSteer = 0.0f;
+		float steerAxis = Input.GetAxis ("Horizontal");
+		if (Mathf.Abs (steerAxis) != 0) {
+			currSteer = steerAxis;
+		}
+
+		//Use item in inventory 
+		if (Input.GetKeyDown("left shift"))
+			useItem();
 	}
 
 	//Physics stuff
 	void FixedUpdate() {
+		//Apply suspension
 		//Set suspensions at each corner of kart
-		//-transform.up points ray down towards ground
-		frontRight = transform.TransformPoint(width/2, -height/32, length/2);
-		frontLeft = transform.TransformPoint(-width/2, -height/32, length/2);
-		backRight = transform.TransformPoint(width/2, -height/32, -length/2);
-		backLeft = transform.TransformPoint(-width/2, -height/32, -length/2);
+		suspPoints[0] = transform.TransformPoint(width/2, -height/32, length/2);
+		suspPoints[1] = transform.TransformPoint(-width/2, -height/32, length/2);
+		suspPoints[2] = transform.TransformPoint(width/2, -height/32, -length/2);
+		suspPoints[3] = transform.TransformPoint(-width/2, -height/32, -length/2); 
 
-		//Grab ray hit info
-		RaycastHit frHit;
-		RaycastHit flHit;
-		RaycastHit rrHit;
-		RaycastHit rlHit;
-
-		//Apply suspension - Makes car act more like a hovercraft than a car with springs. Needs tweaking
-		if (Physics.Raycast (frontRight, -transform.up, out frHit, distOffGround)) {
-			float suspError = distOffGround - frHit.distance;
-			if (suspError > 0) {
-				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
-				rb.AddForceAtPosition(Vector3.up*lift, frontRight);
-			}
+		foreach (Vector3 suspLoc in suspPoints) {
+			SuspensionCalucaltion (suspLoc);
+			Debug.DrawRay (suspLoc, -transform.up * distOffGround, Color.cyan);
 		}
-		if (Physics.Raycast (frontLeft, -transform.up, out flHit, distOffGround)) {
-			float suspError = distOffGround - flHit.distance;
-			if (suspError > 0) {
-				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
-				rb.AddForceAtPosition(Vector3.up*lift, frontLeft);
-			}
-		}
-		if (Physics.Raycast (backRight, -transform.up, out rrHit, distOffGround)) {
-			float suspError = distOffGround - rrHit.distance;
-			if (suspError > 0) {
-				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
-				rb.AddForceAtPosition(Vector3.up*lift,backRight);
-			}
-		}
-		if (Physics.Raycast (backLeft,-transform.up, out rlHit, distOffGround)) {
-			float suspError = distOffGround - rlHit.distance;
-			if (suspError > 0) {
-				float lift = suspError * liftForce - rb.velocity.y * liftDamp;
-				rb.AddForceAtPosition(Vector3.up*lift, backLeft);
-			}
-		}
-
-
-		Debug.DrawRay (frontRight, -transform.up * distOffGround, Color.cyan);
-		Debug.DrawRay (frontLeft, -transform.up * distOffGround, Color.cyan);
-		Debug.DrawRay (backRight, -transform.up * distOffGround, Color.cyan);
-		Debug.DrawRay (backLeft, -transform.up * distOffGround, Color.cyan);
-
-		Debug.Log (rrHit.distance);
-
 
         // Accleration / Braking and Turning
         if (boosting)
         {
-            if (boostDuration == 0)
+            if (boostDuration <= 0)
                 boosting = false;
             boostDuration -= Time.deltaTime;
             //rb.velocity = Vector3.forward * (float)System.Math.Sqrt(maxSpeed);
             rb.velocity = -transform.forward * 100;
 		} //Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
-        else if (rrHit.distance <= distOffGround && rrHit.distance > 0
-		    && frHit.distance <= distOffGround && rrHit.distance > 0 
-		    && flHit.distance <= distOffGround && rrHit.distance > 0 
-		    && rlHit.distance <= distOffGround && rrHit.distance > 0) {
-			if (Input.GetAxis ("Vertical") != 0) 
-				rb.AddForce (-transform.forward * Input.GetAxis ("Vertical") * accel, ForceMode.Acceleration);
+        else if (grounded) {
+			rb.AddForce (-transform.forward * currAccel, ForceMode.Acceleration);
 		}
 		// Reverse inverts steering direction; Mapping to controller should handle this
-		if (Input.GetAxis ("Horizontal") != 0)
+		if (currSteer != 0)
 			rb.AddTorque(transform.up * Mathf.Lerp(
 				0.0f, 
-				Input.GetAxis ("Horizontal") * steer,
+				currSteer * steer,
 				rb.velocity.magnitude - soYouWantToTurnHuh //DO I WANT TO NOMALIZE THIS?
 			));
+	}
 
-        //Press left shift to use item
-        if (Input.GetKeyDown("left shift"))
-            useItem();
-        Debug.Log("Item: " + heldItem);
+	void SuspensionCalucaltion(Vector3 wheelLoc) {
+		RaycastHit wheelHit;
+
+		if (Physics.Raycast (wheelLoc, -transform.up, out wheelHit, distOffGround)) {
+			//float suspError = distOffGround - wheelHit.distance;
+			float cRatio = 1.0f - (wheelHit.distance / distOffGround);
+			//if (suspError > 0) {
+			float lift = cRatio * liftForce/* - rb.velocity.y * liftDamp*/;
+			rb.AddForceAtPosition (Vector3.up * lift, wheelLoc, ForceMode.Force);
+			//}
+		}
+
+		if (wheelHit.distance <= distOffGround && wheelHit.distance > 0) {
+			grounded = true;
+		} else {
+			grounded = false;
+		}
 	}
 
     void OnTriggerEnter (Collider other)
