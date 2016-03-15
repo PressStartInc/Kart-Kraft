@@ -6,21 +6,24 @@ public class c_terraingen_r4 : MonoBehaviour {
 	public GameObject[,] go_localBlocks;
 	public int i_xzRes, i_yRes, i_nextX, i_nextY, i_xDir, i_yDir;
 	public int[,] i_heightmap;
-	public float f_blend, f_elevationSmoothHeight,f_elevationSmoothStrength;
+	public float f_blendAmount, f_trackRoughness, f_elevationSmoothHeight,f_elevationSmoothStrength;
+    public bool b_Randomize = false;
 	public float[] f_sampleSizes;
-	public Vector2[] v2_perlinOrigins;
-	public Vector2 v2_curPos, v2_prevPos;
+	private Vector2[] v2_perlinOrigins;
+	private Vector2 v2_curPos, v2_prevPos;
 	public List<Transform> l_track;
 	// Use this for initialization
 	void Start () {
+        v2_perlinOrigins = new Vector2[f_sampleSizes.Length];
         i_nextX = i_nextY = -1;
         i_xDir = i_yDir = 0;
 		go_localBlocks = new GameObject[i_xzRes,i_xzRes];
-		v2_perlinOrigins[0] = new Vector2(Random.Range(0,10),Random.Range(0,10));
-		v2_perlinOrigins[1] = new Vector2(Random.Range(0,10),Random.Range(0,10));
+		v2_perlinOrigins[0] = new Vector2(Random.Range(0f,10f),Random.Range(0,10f));
+		v2_perlinOrigins[1] = new Vector2(Random.Range(0f,10f),Random.Range(0,10f));
 		v2_curPos.x = v2_prevPos.x = Mathf.Floor(go_focalPoint.transform.position.x);
 		v2_curPos.y = v2_prevPos.y = Mathf.Floor(go_focalPoint.transform.position.z);
-		Randomize();
+		if(b_Randomize) Randomize();
+        UpdateTerrain(true, -1);
 		l_track = new List<Transform>();
 	}
 	
@@ -56,7 +59,7 @@ public class c_terraingen_r4 : MonoBehaviour {
 				for(int j = 0; j < i_xzRes; j++) {
 					bool b_trackExists = false;
 					Vector2 v2_cellPos = new Vector2(v2_curPos.x-i_xzRes/2+i,v2_curPos.y-i_xzRes/2+j);
-					Vector3 v3_blockPos = new Vector3(v2_curPos.x-(i_xzRes/2)+i,Mathf.Ceil(SampleTerrain(v2_cellPos)*i_yRes),v2_curPos.y-(i_xzRes/2)+j);
+					Vector3 v3_blockPos = new Vector3(v2_curPos.x-(i_xzRes/2)+i,Mathf.Ceil(SampleTerrain(v2_cellPos,f_blendAmount)*i_yRes),v2_curPos.y-(i_xzRes/2)+j);
 					for(int k = 0; k < transform.GetChild(0).childCount; k++) {
 						Transform t_track = transform.GetChild(0).GetChild(k);
 						if(t_track.position.x == v3_blockPos.x && t_track.position.z == v3_blockPos.z) {
@@ -131,7 +134,7 @@ public class c_terraingen_r4 : MonoBehaviour {
 				//*************//
 				bool b_trackExists = false;
 				Vector2 v2_cellPos = new Vector2(v2_curPos.x-i_xzRes/2+i_newX,v2_curPos.y-i_xzRes/2+i_newY);
-				Vector3 v3_blockPos = new Vector3(v2_curPos.x-(i_xzRes/2)+i_newX,Mathf.Ceil(SampleTerrain(v2_cellPos)*i_yRes),v2_curPos.y-(i_xzRes/2)+i_newY);
+				Vector3 v3_blockPos = new Vector3(v2_curPos.x-(i_xzRes/2)+i_newX,Mathf.Ceil(SampleTerrain(v2_cellPos,f_blendAmount)*i_yRes),v2_curPos.y-(i_xzRes/2)+i_newY);
 				for(int k = 0; k < l_track.Count; k++) {
 					Transform t_track = l_track[k];
 					if(t_track.position.x == v3_blockPos.x && t_track.position.z == v3_blockPos.z) {
@@ -151,16 +154,16 @@ public class c_terraingen_r4 : MonoBehaviour {
 	}
 	public void Randomize() {
 		i_yRes = Random.Range(i_xzRes/2,i_xzRes);
-		f_blend = Random.Range(25f,5f);
+		f_blendAmount = Random.Range(25f,5f);
 		f_elevationSmoothHeight = Random.Range(0.25f,0.75f);
 		f_elevationSmoothStrength = Random.Range(0f,0.95f);
 		f_sampleSizes[0] = Random.Range(0f,2f);
 		f_sampleSizes[1] = Random.Range(f_sampleSizes[0]/2,10f);
-		UpdateTerrain(true, -1);
+		
 	}
 	
 	
-	public float SampleTerrain(Vector2 v2_position) {
+	public float SampleTerrain(Vector2 v2_position, float f_blend) {
 		Vector2[] v2_perlinPos = new Vector2[2];		
 		v2_perlinPos[0].x = (v2_position.x/(float)i_xzRes)*f_sampleSizes[0];
 		v2_perlinPos[0].y = (v2_position.y/(float)i_xzRes)*f_sampleSizes[0];
@@ -169,13 +172,14 @@ public class c_terraingen_r4 : MonoBehaviour {
 		Vector2 v2_samplePos = new Vector2(v2_perlinOrigins[0].x+v2_perlinPos[0].x,v2_perlinOrigins[0].y+v2_perlinPos[0].y);
 		float f_height = Mathf.PerlinNoise(v2_samplePos.x,v2_samplePos.y);
 		if(f_height < f_elevationSmoothHeight) f_height = f_height*(1-f_elevationSmoothStrength);
-		else f_height = Mathf.Lerp(f_height*(1-f_elevationSmoothStrength),f_height,(f_height-(f_elevationSmoothHeight)/(1f-f_elevationSmoothHeight))*(1f-f_elevationSmoothStrength));
+		//else f_height = Mathf.Lerp(f_height*(1-f_elevationSmoothStrength),f_height,(f_height-(f_elevationSmoothHeight)/(1f-f_elevationSmoothHeight))*(1f-f_elevationSmoothStrength));
+        else f_height = Mathf.Lerp(f_height*(1-f_elevationSmoothStrength),f_height,(f_height-f_elevationSmoothHeight)/(1f-f_elevationSmoothHeight));
 
 		v2_samplePos = new Vector2(v2_perlinOrigins[1].x+v2_perlinPos[1].x,v2_perlinOrigins[1].y+v2_perlinPos[1].y);
 		float f_height2 = Mathf.PerlinNoise(v2_samplePos.x,v2_samplePos.y);
 		
 		if(f_height2 < f_elevationSmoothHeight) f_height2 = f_height2*(1-f_elevationSmoothStrength);
-		else f_height2 = Mathf.Lerp(f_height2*(1-f_elevationSmoothStrength),f_height2,f_height2-(f_elevationSmoothHeight)/(1f-f_elevationSmoothHeight)*(1f-f_elevationSmoothStrength));
+		else f_height2 = Mathf.Lerp(f_height2*(1-f_elevationSmoothStrength),f_height2,f_height2-(f_elevationSmoothHeight)/(1f-f_elevationSmoothHeight));
 		float f_finalHeight = Mathf.Lerp(f_height,f_height2,f_blend/100f);
 		//print((v2_samplePos + ":: " + f_height + " + " + f_height2 + " = " + f_finalHeight));
 		return f_finalHeight;
