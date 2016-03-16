@@ -4,7 +4,10 @@ using System.Collections;
 public class KartController : MonoBehaviour {
 	private Rigidbody rb;
 	private Vector3[] suspPoints;
-	private bool grounded;
+	private bool frGround;
+	private bool flGround;
+	private bool rlGround;
+	private bool rrGround;
 	private float currAccel;
 	private float currSteer;
 
@@ -56,7 +59,7 @@ public class KartController : MonoBehaviour {
 		//Steer
 		currSteer = 0.0f;
 		float steerAxis = Input.GetAxis ("p"+player+"Steer");
-		Debug.Log ("Steer: " + steerAxis);
+		Debug.Log ("P"+player+"Steer: " + steerAxis);
 		if (Mathf.Abs (steerAxis) != 0) {
 			currSteer = steerAxis;
 		}
@@ -75,10 +78,10 @@ public class KartController : MonoBehaviour {
 		suspPoints[2] = transform.TransformPoint(width/2, -height/32, -length/2);
 		suspPoints[3] = transform.TransformPoint(-width/2, -height/32, -length/2); 
 
-		foreach (Vector3 suspLoc in suspPoints) {
-			SuspensionCalucaltion (suspLoc);
-			Debug.DrawRay (suspLoc, -transform.up * distOffGround, Color.cyan);
-		}
+		frGround = SuspensionCalucaltion (suspPoints [0]);
+		rlGround = SuspensionCalucaltion (suspPoints [1]);
+		flGround = SuspensionCalucaltion (suspPoints [2]);
+		rrGround = SuspensionCalucaltion (suspPoints [3]);
 
         // Accleration / Braking and Turning
         if (boosting) {
@@ -87,7 +90,7 @@ public class KartController : MonoBehaviour {
 			boostDuration -= Time.deltaTime;
 			//rb.velocity = Vector3.forward * (float)System.Math.Sqrt(maxSpeed);
 			rb.velocity = -transform.forward * 100;
-		} else if (grounded) {
+		} else if (frGround || flGround || rrGround || rlGround) {
 			//Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
 			if (rb.velocity.sqrMagnitude < maxSpeed)
 				rb.AddForce (-transform.forward * currAccel, ForceMode.Acceleration);
@@ -116,7 +119,7 @@ public class KartController : MonoBehaviour {
 		rb.velocity = transform.TransformDirection(localVelocity);
 	}
 
-	void SuspensionCalucaltion(Vector3 wheelLoc) {
+	bool SuspensionCalucaltion(Vector3 wheelLoc) {
 		RaycastHit wheelHit;
 
 		if (Physics.Raycast (wheelLoc, -transform.up, out wheelHit, distOffGround)) {
@@ -129,9 +132,9 @@ public class KartController : MonoBehaviour {
 		}
 
 		if (wheelHit.distance <= distOffGround && wheelHit.distance > 0) {
-			grounded = true;
+			return true;
 		} else {
-			grounded = false;
+			return false;
 		}
 	}
 
