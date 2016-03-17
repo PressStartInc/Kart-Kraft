@@ -161,13 +161,13 @@ public class KartController : MonoBehaviour {
             boostDuration = 3.0f;
         }
     }
-
 	/*
 	void OnGUI () {
 		GUI.DrawTexture (Rect (Screen.width - 300, Screen.height - 150, 300, 150), speedOMeterDial);
-		float speedFactor = currentSpeed / topSpeed;
+		//float speedFactor = currentSpeed / topSpeed;
+		float speedFactor = maxSpeed;
 		float rotationAngle;
-		if (currentSpeed >= 0) {
+		if (maxSpeed >= 0) {
 			rotationAngle = Mathf.Lerp (0, 180, speedFactor);
 		} else {
 			rotationAngle = Mathf.Lerp (0, 180, -speedFactor);
@@ -175,7 +175,8 @@ public class KartController : MonoBehaviour {
 		GUIUtility.RotateAroundPivot (rotationAngle, Vector2 (Screen.width - 150, Screen.height));
 		GUI.DrawTexture (Rect (Screen.width - 300, Screen.height - 150, 300, 300), speedOMeterPointer);
 	}
-
+	*/
+	/*
 	void Placing () {
 		if(place == 1) {
 			//Display 1st Place Texture
@@ -191,5 +192,6 @@ public class KartController : MonoBehaviour {
 		}
 	}
 	*/
+
 
 }
