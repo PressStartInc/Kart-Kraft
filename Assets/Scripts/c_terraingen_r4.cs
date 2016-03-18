@@ -6,7 +6,8 @@ public class c_terraingen_r4 : MonoBehaviour {
 	public GameObject go_block;
     public GameObject[] go_focalPoint;
 	public GameObject[,,] go_localBlocks;
-	public int i_xzRes, i_yRes;
+    public int[] i_placement, i_waypoint;
+	public int i_xzRes, i_yRes,i_lead;
 	public int[,] i_heightmap, i_trackCount;
 	public float f_blendAmount, f_trackRoughness, f_elevationSmoothHeight,f_elevationSmoothStrength;
     public bool b_Randomize = false;
@@ -21,13 +22,15 @@ public class c_terraingen_r4 : MonoBehaviour {
         v2_curPos = new Vector2[go_focalPoint.Length];
         v2_prevPos = new Vector2[go_focalPoint.Length];
         v2_perlinOrigins = new Vector2[f_sampleSizes.Length];
-
+        i_placement = new int[go_focalPoint.Length];
+        i_waypoint = new int[go_focalPoint.Length];
 		go_localBlocks = new GameObject[go_focalPoint.Length,i_xzRes,i_xzRes];
 		v2_perlinOrigins[0] = new Vector2(Random.Range(0f,10f),Random.Range(0,10f));
 		v2_perlinOrigins[1] = new Vector2(Random.Range(0f,10f),Random.Range(0,10f));
 		
 		if(b_Randomize) Randomize();
         for(int i = 0; i < go_focalPoint.Length; i++) {
+            i_placement[i] = i;
             go_focalPoint[i].transform.position = new Vector3(go_focalPoint[0].transform.position.x,go_focalPoint[0].transform.position.y,go_focalPoint[0].transform.position.z+2*i);
             go_focalPoint[i].transform.position = new Vector3(go_focalPoint[i].transform.position.x,Mathf.Ceil(SampleTerrain(new Vector2(go_focalPoint[i].transform.position.x,go_focalPoint[i].transform.position.z),0f)*i_yRes+6f),go_focalPoint[i].transform.position.z);
             v2_curPos[i].x = v2_prevPos[i].x = Mathf.Floor(go_focalPoint[i].transform.position.x);
