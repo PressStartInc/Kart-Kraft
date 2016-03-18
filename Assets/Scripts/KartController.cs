@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class KartController : MonoBehaviour {
@@ -35,6 +36,9 @@ public class KartController : MonoBehaviour {
 	public Texture speedOMeterDial;
 	public Texture speedOMeterPointer;
 	public int place;
+	public Text P1Speed;
+	public Text P2Speed;
+	private Vector3 localVelocity;
 
 	void Start() {
 		rb = this.GetComponent<Rigidbody> ();
@@ -50,16 +54,16 @@ public class KartController : MonoBehaviour {
 		float accelAxis = 0.0f; //Input.GetAxis ("Vertical");
 //		if (accelAxis != 0)
 //			currAccel = accelAxis * accel;
-		if (Input.GetKey ("joystick " + player + " button 1")) // x
+		if (Input.GetKey ("w")) // x
 			accelAxis = 1.0f;
-		else if (Input.GetKey ("joystick " + player + " button 0")) // sq
+		else if (Input.GetKey ("s")) // sq
 			accelAxis = -1.0f;
 		currAccel = accelAxis * accel;
 
 		//Steer
 		currSteer = 0.0f;
-		float steerAxis = Input.GetAxis ("p"+player+"Steer");
-		Debug.Log ("P"+player+"Steer: " + steerAxis);
+		float steerAxis = Input.GetAxis ("Horizontal");
+		//Debug.Log ("P"+player+"Steer: " + steerAxis);
 		if (Mathf.Abs (steerAxis) != 0) {
 			currSteer = steerAxis;
 		}
@@ -67,6 +71,7 @@ public class KartController : MonoBehaviour {
 		//Use item in inventory 
 		if (Input.GetKey ("joystick " + player + " button 2")) // o , i think
 			useItem();
+		SetPlayerSpeed ();
 	}
 
 	//Physics stuff
@@ -110,7 +115,7 @@ public class KartController : MonoBehaviour {
 		float LateralSpeedFactor = 0.1f;
 		
 		//Inverse transform rigidbody velocity from world to local coordinates
-		Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
+		localVelocity = transform.InverseTransformDirection(rb.velocity);
 		
 		//Remove X (sideways) component of local velocity
 		localVelocity.x *= LateralSpeedFactor;
@@ -161,6 +166,19 @@ public class KartController : MonoBehaviour {
             boostDuration = 3.0f;
         }
     }
+
+	void SetPlayerSpeed() {
+		string speed = Mathf.Abs(Mathf.Round(localVelocity.z * 8)).ToString();
+		if (transform.name.Equals ("p1")) {
+			P1Speed.text = speed + "Mph";
+			Debug.Log ("P1Speed");
+		}
+		else if (transform.name.Equals ("p2")) {
+			P2Speed.text = speed + "Mph";
+			Debug.Log ("P2Speed");
+		}
+	}
+
 	/*
 	void OnGUI () {
 		GUI.DrawTexture (Rect (Screen.width - 300, Screen.height - 150, 300, 150), speedOMeterDial);
