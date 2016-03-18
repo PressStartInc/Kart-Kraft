@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-
+using System.Collections.Generic;
 public class KartController : MonoBehaviour {
 	private Rigidbody rb;
 	private Vector3[] suspPoints;
@@ -54,7 +54,11 @@ public class KartController : MonoBehaviour {
 		float accelAxis = 0.0f; //Input.GetAxis ("Vertical");
 //		if (accelAxis != 0)
 //			currAccel = accelAxis * accel;
+<<<<<<< HEAD
 		if (Input.GetKey ("w")) // x
+=======
+		if (Input.GetKey ("joystick " + player + " button 1") || Input.GetKey(KeyCode.W)) // x
+>>>>>>> origin/master
 			accelAxis = 1.0f;
 		else if (Input.GetKey ("s")) // sq
 			accelAxis = -1.0f;
@@ -62,8 +66,19 @@ public class KartController : MonoBehaviour {
 
 		//Steer
 		currSteer = 0.0f;
+<<<<<<< HEAD
 		float steerAxis = Input.GetAxis ("Horizontal");
 		//Debug.Log ("P"+player+"Steer: " + steerAxis);
+=======
+		float steerAxis = Input.GetAxis ("p"+player+"Steer");
+        if(Input.GetAxis ("p"+player+"Steer") == 0f) {
+            if(Input.GetKey(KeyCode.A))
+                steerAxis = -steer;
+            else if(Input.GetKey(KeyCode.D))
+                steerAxis = steer;
+        }
+		Debug.Log ("P"+player+"Steer: " + steerAxis);
+>>>>>>> origin/master
 		if (Mathf.Abs (steerAxis) != 0) {
 			currSteer = steerAxis;
 		}
@@ -97,17 +112,19 @@ public class KartController : MonoBehaviour {
 			rb.velocity = -transform.forward * 100;
 		} else if (frGround || flGround || rrGround || rlGround) {
 			//Make sure vehicle is grounded before applying acceleration; Better way to project transform.fwd to ground
+
 			if (rb.velocity.sqrMagnitude < maxSpeed)
 				rb.AddForce (-transform.forward * currAccel, ForceMode.Acceleration);
 		
 			//Steering
-			if (currSteer != 0)
+            
+		}
+        if (currSteer != 0)
 				rb.AddTorque (transform.up * Mathf.Lerp (
 				0.0f, 
 				currSteer * steer,
 				rb.velocity.magnitude - soYouWantToTurnHuh //DO I WANT TO NOMALIZE THIS?
 				));
-		}
 
 		// Pseudo-traction/handing
 
@@ -130,9 +147,10 @@ public class KartController : MonoBehaviour {
 		if (Physics.Raycast (wheelLoc, -transform.up, out wheelHit, distOffGround)) {
 			//float suspError = distOffGround - wheelHit.distance;
 			float cRatio = 1.0f - (wheelHit.distance / distOffGround);
+            //if(cRatio > 0.9) rb.velocity = new Vector3(rb.velocity.x,Mathf.Abs(rb.velocity.y),rb.velocity.z);
 			//if (suspError > 0) {
-			float lift = cRatio * liftForce/* - rb.velocity.y * liftDamp*/;
-			rb.AddForceAtPosition (Vector3.up * lift, wheelLoc, ForceMode.Force);
+			float lift = (1f/(1f-cRatio)-1f) * liftForce/* - rb.velocity.y * liftDamp*/;
+			rb.AddForceAtPosition (transform.up * lift, wheelLoc, ForceMode.Force);
 			//}
 		}
 
