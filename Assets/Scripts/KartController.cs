@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class KartController : MonoBehaviour {
 	private Rigidbody rb;
 	private Vector3[] suspPoints;
+	private Vector3 localVelocity;
 	private bool frGround;
 	private bool flGround;
 	private bool rlGround;
@@ -38,7 +39,6 @@ public class KartController : MonoBehaviour {
 	public int place;
 	public Text P1Speed;
 	public Text P2Speed;
-	private Vector3 localVelocity;
 
 	void Start() {
 		rb = this.GetComponent<Rigidbody> ();
@@ -54,31 +54,17 @@ public class KartController : MonoBehaviour {
 		float accelAxis = 0.0f; //Input.GetAxis ("Vertical");
 //		if (accelAxis != 0)
 //			currAccel = accelAxis * accel;
-<<<<<<< HEAD
-		if (Input.GetKey ("w")) // x
-=======
-		if (Input.GetKey ("joystick " + player + " button 1") || Input.GetKey(KeyCode.W)) // x
->>>>>>> origin/master
+
+		if (Input.GetKey ("joystick " + player + " button 1")) // x
 			accelAxis = 1.0f;
-		else if (Input.GetKey ("s")) // sq
+		else if (Input.GetKey ("joystick "+player+" button 0")) // sq
 			accelAxis = -1.0f;
 		currAccel = accelAxis * accel;
 
 		//Steer
 		currSteer = 0.0f;
-<<<<<<< HEAD
-		float steerAxis = Input.GetAxis ("Horizontal");
-		//Debug.Log ("P"+player+"Steer: " + steerAxis);
-=======
 		float steerAxis = Input.GetAxis ("p"+player+"Steer");
-        if(Input.GetAxis ("p"+player+"Steer") == 0f) {
-            if(Input.GetKey(KeyCode.A))
-                steerAxis = -steer;
-            else if(Input.GetKey(KeyCode.D))
-                steerAxis = steer;
-        }
-		Debug.Log ("P"+player+"Steer: " + steerAxis);
->>>>>>> origin/master
+		//Debug.Log ("P"+player+"Steer: " + steerAxis);
 		if (Mathf.Abs (steerAxis) != 0) {
 			currSteer = steerAxis;
 		}
@@ -98,10 +84,10 @@ public class KartController : MonoBehaviour {
 		suspPoints[2] = transform.TransformPoint(width/2, -height/32, -length/2);
 		suspPoints[3] = transform.TransformPoint(-width/2, -height/32, -length/2); 
 
-		frGround = SuspensionCalucaltion (suspPoints [0]);
-		rlGround = SuspensionCalucaltion (suspPoints [1]);
-		flGround = SuspensionCalucaltion (suspPoints [2]);
-		rrGround = SuspensionCalucaltion (suspPoints [3]);
+		frGround = SuspensionCalculation (suspPoints [0]);
+		rlGround = SuspensionCalculation (suspPoints [1]);
+		flGround = SuspensionCalculation (suspPoints [2]);
+		rrGround = SuspensionCalculation (suspPoints [3]);
 
         // Accleration / Braking and Turning
         if (boosting) {
@@ -141,7 +127,7 @@ public class KartController : MonoBehaviour {
 		rb.velocity = transform.TransformDirection(localVelocity);
 	}
 
-	bool SuspensionCalucaltion(Vector3 wheelLoc) {
+	bool SuspensionCalculation(Vector3 wheelLoc) {
 		RaycastHit wheelHit;
 
 		if (Physics.Raycast (wheelLoc, -transform.up, out wheelHit, distOffGround)) {
@@ -149,11 +135,13 @@ public class KartController : MonoBehaviour {
 			float cRatio = 1.0f - (wheelHit.distance / distOffGround);
             //if(cRatio > 0.9) rb.velocity = new Vector3(rb.velocity.x,Mathf.Abs(rb.velocity.y),rb.velocity.z);
 			//if (suspError > 0) {
-			float lift = (1f/(1f-cRatio)-1f) * liftForce/* - rb.velocity.y * liftDamp*/;
+			float lift = cRatio * liftForce/* - rb.velocity.y * liftDamp*/;
 			rb.AddForceAtPosition (transform.up * lift, wheelLoc, ForceMode.Force);
 			//}
 		}
 
+		Debug.DrawRay(wheelLoc, -transform.up, Color.cyan, distOffGround);
+		
 		if (wheelHit.distance <= distOffGround && wheelHit.distance > 0) {
 			return true;
 		} else {
@@ -198,21 +186,6 @@ public class KartController : MonoBehaviour {
 	}
 
 	/*
-	void OnGUI () {
-		GUI.DrawTexture (Rect (Screen.width - 300, Screen.height - 150, 300, 150), speedOMeterDial);
-		//float speedFactor = currentSpeed / topSpeed;
-		float speedFactor = maxSpeed;
-		float rotationAngle;
-		if (maxSpeed >= 0) {
-			rotationAngle = Mathf.Lerp (0, 180, speedFactor);
-		} else {
-			rotationAngle = Mathf.Lerp (0, 180, -speedFactor);
-		}
-		GUIUtility.RotateAroundPivot (rotationAngle, Vector2 (Screen.width - 150, Screen.height));
-		GUI.DrawTexture (Rect (Screen.width - 300, Screen.height - 150, 300, 300), speedOMeterPointer);
-	}
-	*/
-	/*
 	void Placing () {
 		if(place == 1) {
 			//Display 1st Place Texture
@@ -228,6 +201,4 @@ public class KartController : MonoBehaviour {
 		}
 	}
 	*/
-
-
 }
