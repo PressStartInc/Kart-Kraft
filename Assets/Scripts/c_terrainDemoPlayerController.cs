@@ -30,25 +30,26 @@ public class c_terrainDemoPlayerController : MonoBehaviour {
 		if(v2_gridPos != v2_prevPos) {
 			for(int i = 0; i < c_controller.i_xzRes; i++) {
 				for(int j = 0; j < c_controller.i_xzRes; j++) {
-						if(c_controller.go_localBlocks[i,j] != null) {
-							if(c_controller.go_localBlocks[i,j].transform.position.x == v2_gridPos.x &&
-							c_controller.go_localBlocks[i,j].transform.position.z == v2_gridPos.y) { //y = z in Vector2
-								go_nearestBlock = c_controller.go_localBlocks[i,j];
+                    for(int k = 0; k < c_controller.i_xzRes; k++)
+						if(c_controller.go_localBlocks[k,i,j] != null) {
+							if(c_controller.go_localBlocks[k,i,j].transform.position.x == v2_gridPos.x &&
+							c_controller.go_localBlocks[k,i,j].transform.position.z == v2_gridPos.y) { //y = z in Vector2
+								go_nearestBlock = c_controller.go_localBlocks[k,i,j];
 							}
-					}
-				}
-			}
-		v2_prevPos = v2_gridPos;
-		}
-	if(go_nearestBlock != null) {
-		if(transform.position.y < go_nearestBlock.transform.position.y+8) {
-			f_downSpeed = Mathf.Lerp(f_downSpeed,0,transform.position.y-(go_nearestBlock.transform.position.y+6));
-			if(transform.position.y < go_nearestBlock.transform.position.y+6)transform.position = new Vector3(transform.position.x,go_nearestBlock.transform.position.y+6,transform.position.z);
-		}
-		else f_downSpeed = f_origDownSpeed;
-	}
-	transform.Translate(-Vector3.up*Time.deltaTime*f_downSpeed);
-    if(f_counter > f_turnDecisionCount) {
+					    }
+				    }
+			    }
+		    v2_prevPos = v2_gridPos;
+		    }
+	    if(go_nearestBlock != null) {
+		    if(transform.position.y < go_nearestBlock.transform.position.y+8) {
+    			f_downSpeed = Mathf.Lerp(f_downSpeed,0,transform.position.y-(go_nearestBlock.transform.position.y+6));
+    			if(transform.position.y < go_nearestBlock.transform.position.y+6)transform.position = new Vector3(transform.position.x,go_nearestBlock.transform.position.y+6,transform.position.z);
+    		}
+    		else f_downSpeed = f_origDownSpeed;
+    	}
+    	transform.Translate(-Vector3.up*Time.deltaTime*f_downSpeed);
+        if(f_counter > f_turnDecisionCount) {
             f_counter = 0;
             f_turnCounter = 0;
             i_turnDirection = Random.Range(0,2);
