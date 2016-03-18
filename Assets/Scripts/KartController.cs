@@ -33,7 +33,6 @@ public class KartController : MonoBehaviour {
 
 	public float distOffGround;
 	public float liftForce;
-	public float liftDamp;
 
 	public Texture speedOMeterDial;
 	public Texture speedOMeterPointer;
@@ -43,7 +42,7 @@ public class KartController : MonoBehaviour {
 
 	void Start() {
 		rb = this.GetComponent<Rigidbody> ();
-		rb.centerOfMass = new Vector3 (0.0f, -1.0f, 0.0f);
+		rb.centerOfMass = new Vector3 (0.0f, -1.5f, 0.0f);
 
 		suspPoints = new Vector3[4];
 	}
@@ -85,10 +84,10 @@ public class KartController : MonoBehaviour {
 		suspPoints[2] = transform.TransformPoint(width/2, -height/32, -length/2);
 		suspPoints[3] = transform.TransformPoint(-width/2, -height/32, -length/2); 
 
-		frGround = SuspensionCalculation (suspPoints [0]);
+		rrGround = SuspensionCalculation (suspPoints [0]);
 		rlGround = SuspensionCalculation (suspPoints [1]);
 		flGround = SuspensionCalculation (suspPoints [2]);
-		rrGround = SuspensionCalculation (suspPoints [3]);
+		frGround = SuspensionCalculation (suspPoints [3]);
 
         // Accleration / Braking and Turning
         if (boosting) {
@@ -130,13 +129,9 @@ public class KartController : MonoBehaviour {
 		RaycastHit wheelHit;
 
 		if (Physics.Raycast (wheelLoc, -transform.up, out wheelHit, distOffGround)) {
-			//float suspError = distOffGround - wheelHit.distance;
 			float cRatio = 1.0f - (wheelHit.distance / distOffGround);
-            //if(cRatio > 0.9) rb.velocity = new Vector3(rb.velocity.x,Mathf.Abs(rb.velocity.y),rb.velocity.z);
-			//if (suspError > 0) {
-			float lift = cRatio * liftForce/* - rb.velocity.y * liftDamp*/;
+			float lift = cRatio * liftForce;
 			rb.AddForceAtPosition (transform.up * lift, wheelLoc, ForceMode.Force);
-			//}
 		}
 
 		Debug.DrawRay(wheelLoc, -transform.up, Color.cyan, distOffGround);
