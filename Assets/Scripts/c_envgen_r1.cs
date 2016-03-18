@@ -5,11 +5,14 @@ public class c_envgen_r1 : MonoBehaviour {
     public Material m_terrain1,m_terrain2;
     public Material m_track;
     public Material m_skyGradient;
+    public GameObject go_directionalLight;
     public Color c_terrainColor1, c_terrainColor2, c_trackColor1, c_trackColor2, c_skyColor, c_groundColor;
     public float f_sunSize, f_atmosphere, f_exposure, f_skyIntensity;
     
 	// Use this for initialization
 	void Start () {
+    go_directionalLight.transform.Rotate(Random.Range(0f,360f),Random.Range(0f,360f),Random.Range(0f,360f));
+    if(go_directionalLight.transform.eulerAngles.x > 180) go_directionalLight.GetComponent<Light>().intensity = 0f;
     int i_numColorComponents = Random.Range(0,2)+1;
     print(i_numColorComponents);
     int[] i_mainColorComponents = new int[i_numColorComponents];
