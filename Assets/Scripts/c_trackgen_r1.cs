@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class c_trackgen_r1 : MonoBehaviour {
+	public c_racecontroller c_racecontroller;
 	public c_terraingen_r4 c_terraingen;
     public c_envgen_r1 c_envgen;
     public c_waypoint_r1 c_waypoint;
@@ -9,18 +10,22 @@ public class c_trackgen_r1 : MonoBehaviour {
 	public GameObject go_trackHolder;
     public int i_trackCount, i_numTracks;
     public Collider co_start;
+    public Vector2 v2_startPos;
 	// Use this for initialization
 	void Start () {
-	print("track test");
+//	print("track test");
+
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if(c_racecontroller.b_start) v2_startPos = new Vector2(transform.position.x,transform.position.z);
+		if(c_terraingen.v2_curPos[c_terraingen.i_lead] != v2_startPos && co_start.enabled) co_start.enabled = false; 
 	    //transform.position = c_waypoint.go_lead.transform.position;
         if(go_followee != c_waypoint.go_lead) {
             go_followee = c_waypoint.go_lead;
             //transform.localPosition = Vector3.zero;
-         if(co_start.enabled) co_start.enabled = false;   
+         //if(co_start.enabled) co_start.enabled = false;   
         }
     transform.position = go_followee.transform.position;
 	}
@@ -30,7 +35,9 @@ public class c_trackgen_r1 : MonoBehaviour {
         }   
     }
 	void OnTriggerEnter(Collider c_collision) {
+
 		if(c_collision.transform.name == "p_terraincell(Clone)" || c_collision.transform.name == "p_track(Old)"){
+
 			Vector2 v2_cellPos = new Vector2(Mathf.Floor(c_collision.transform.position.x),Mathf.Floor(c_collision.transform.position.z));
 			bool b_alreadySpawned = false;
             if(c_collision.transform.name == "p_track(Old)") {

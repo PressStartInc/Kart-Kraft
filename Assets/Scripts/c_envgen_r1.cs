@@ -11,10 +11,10 @@ public class c_envgen_r1 : MonoBehaviour {
     
 	// Use this for initialization
 	void Start () {
-    go_directionalLight.transform.Rotate(Random.Range(0f,360f),Random.Range(0f,360f),Random.Range(0f,360f));
-    if(go_directionalLight.transform.eulerAngles.x > 180) go_directionalLight.GetComponent<Light>().intensity = 0f;
+    //go_directionalLight.transform.Rotate(45f,Random.Range(0f,170f),Random.Range(0f,170f));
+	go_directionalLight.GetComponent<Light>().intensity = Random.Range(0.1f,1.5f);
     int i_numColorComponents = Random.Range(0,2)+1;
-    print(i_numColorComponents);
+//    print(i_numColorComponents);
     int[] i_mainColorComponents = new int[i_numColorComponents];
         for(int i = 0; i < i_numColorComponents; i++) {
              bool b_unique = true;
@@ -44,19 +44,19 @@ public class c_envgen_r1 : MonoBehaviour {
                                     
         f_sunSize = Random.Range(0f,1f);
         f_exposure = Random.Range(0f,8f);
-        f_atmosphere = Random.Range(0f,5f);
+        f_atmosphere = Random.Range(0.25f,1f);
         RenderSettings.skybox.SetColor("_SkyTint", c_skyColor);
         RenderSettings.skybox.SetFloat("_Exposure",f_exposure);
         RenderSettings.skybox.SetFloat("_AtmosphereThickness",f_atmosphere);
         RenderSettings.skybox.SetFloat("_SunSize",f_sunSize);
-        //RenderSettings.fogColor = c_terrainColor1;
-        //RenderSettings.fogDensity = Random.Range(0f,f_atmosphere)*0.1f;
+        RenderSettings.fogColor = c_skyColor;
+        RenderSettings.fogDensity = 0.075f*f_atmosphere;
         
         
         c_terrainColor1 = new Color(Random.Range(0f,1f),Random.Range(0f,1f),Random.Range(0f,1f),1);
         c_terrainColor2 = new Color(Random.Range(0f,1f),Random.Range(0f,1f),Random.Range(0f,1f),1);
         c_groundColor = c_terrainColor1;
-        RenderSettings.skybox.SetColor("_GroundColor", c_groundColor);
+        RenderSettings.skybox.SetColor("_GroundColor", c_skyColor);//c_groundColor);
         
         //temporarily assigning albedo and emission color
         m_terrain1.SetColor("_Color",c_terrainColor1);
