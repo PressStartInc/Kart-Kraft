@@ -5,6 +5,7 @@ public class c_AI_r1 : MonoBehaviour {
 	public c_terraingen_r4 c_terraingen;
 	public c_racecontroller c_racecontroller;
 	public c_waypoint_r1 c_waypoint;
+	public bool b_randomize;
 	public int i_kartRef, i_curWaypoint, i_nextWaypoint,i_waypointDirection;
 	public KartController_pat1 c_kartcontroller;
 	public float f_angle, f_angleLenience, f_anglePanic;
@@ -20,9 +21,18 @@ public class c_AI_r1 : MonoBehaviour {
 		challenger,
 		follower
 	}
+	void Randomize(){
+		f_minTurnDuration = Random.Range(0f,1f);
+		f_maxTurnDuration = Random.Range(f_minTurnDuration+0.5f,f_minTurnDuration+2f);
+		f_minTurnTimeout = Random.Range(0f,5f);
+		f_maxTurnTimeout = Random.Range(f_minTurnTimeout+1f,f_minTurnTimeout+5f);
+		f_angleLenience = Random.Range(5f,30f);
+		f_anglePanic = Random.Range(f_angleLenience+5f,f_angleLenience+20f);
 
+	}
 
 	void Start () {
+		if(b_randomize) Randomize();
 		state = AIState.follower;
 		c_kartcontroller.b_AI = true;
 		i_turnDirection = -1;

@@ -37,8 +37,8 @@ public class c_terraingen_r4 : MonoBehaviour {
 		if(b_Randomize) Randomize();
         for(int i = 0; i < go_focalPoint.Length; i++) {
             i_placement[i] = i;
-            go_focalPoint[i].transform.position = new Vector3(go_focalPoint[0].transform.position.x,go_focalPoint[0].transform.position.y,go_focalPoint[0].transform.position.z+2*i);
-            go_focalPoint[i].transform.position = new Vector3(go_focalPoint[i].transform.position.x,Mathf.Ceil(SampleTerrain(new Vector2(go_focalPoint[i].transform.position.x,go_focalPoint[i].transform.position.z),0f)*i_yRes+6f),go_focalPoint[i].transform.position.z);
+            go_focalPoint[i].transform.position = new Vector3(go_focalPoint[0].transform.position.x+(i%2f)*2f,go_focalPoint[0].transform.position.y,go_focalPoint[0].transform.position.z-4*i);
+           	go_focalPoint[i].transform.position = new Vector3(go_focalPoint[i].transform.position.x,(SampleTerrain(new Vector2(go_focalPoint[i].transform.position.x,go_focalPoint[i].transform.position.z),f_trackRoughness)*i_yRes)+5.5f,go_focalPoint[i].transform.position.z);
             v2_curPos[i].x = v2_prevPos[i].x = Mathf.Floor(go_focalPoint[i].transform.position.x);
 		    v2_curPos[i].y = v2_prevPos[i].y = Mathf.Floor(go_focalPoint[i].transform.position.z);
             UpdateTerrain(i, true, -1);    
@@ -62,7 +62,8 @@ public class c_terraingen_r4 : MonoBehaviour {
             i_placement[1] = 1;
         }*/
         for(int i = 0; i < go_focalPoint.Length; i++) {
-            go_playerPlacement[i].GetComponent<UnityEngine.UI.Text>().text = (i_placement[i]+1).ToString();
+            if(go_focalPoint[i].transform.tag == "Player")
+            	go_playerPlacement[i].GetComponent<UnityEngine.UI.Text>().text = (i_placement[i]+1).ToString();
 		    v2_curPos[i] = new Vector2(Mathf.Floor(go_focalPoint[i].transform.position.x),Mathf.Floor(go_focalPoint[i].transform.position.z));
 		    if(v2_curPos[i] != v2_prevPos[i]) {
     				//Determine direction the character moved
@@ -200,7 +201,7 @@ public class c_terraingen_r4 : MonoBehaviour {
             for(int i = 0; i < i_xzRes;i++) {
                for(int j = 0; j < i_xzRes; j++) {
                     //for(int k = 0; k < go_focalPoint.Length;k++){
-               	/*
+               	
                         if(!go_localBlocks[player,j,i].activeSelf) {
                             RaycastHit hit;
                             if(!Physics.Raycast(new Vector3(go_localBlocks[player,j,i].transform.position.x,go_localBlocks[player,j,i].transform.position.y+10,go_localBlocks[player,j,i].transform.position.z),Vector3.down,out hit,20f,lm_terrainCheck)){
@@ -210,21 +211,51 @@ public class c_terraingen_r4 : MonoBehaviour {
                                 go_localBlocks[player,j,i].SetActive(false);
                             }
                         }
-                        */
-					float f_distance = Vector2.Distance(new Vector2(go_localBlocks[player,j,i].transform.position.x,go_localBlocks[player,j,i].transform.position.z),new Vector2(go_focalPoint[player].transform.position.x,go_focalPoint[player].transform.position.z));
-					if(f_distance < c_trackCollider.radius+1) {
-						go_localBlocks[player,i,j].GetComponent<Collider>().enabled = true;
-					}
-					else go_localBlocks[player,i,j].GetComponent<Collider>().enabled = false;
+                        
+					//float f_distance = Vector2.Distance(new Vector2(go_localBlocks[player,j,i].transform.position.x,go_localBlocks[player,j,i].transform.position.z),new Vector2(go_focalPoint[player].transform.position.x,go_focalPoint[player].transform.position.z));
+					//if(f_distance < c_trackCollider.radius+1) {
+					//	go_localBlocks[player,i,j].GetComponent<Collider>().enabled = true;
+					//}
+					//else go_localBlocks[player,i,j].GetComponent<Collider>().enabled = false;
                   //  }                
                 }
             }
 		}
 	}
+			/*
+            for(int i = 0; i < i_xzRes;i++) {
+               for(int j = 0; j < i_xzRes; j++) {
+                    bool b_exists = false;
+                    for(int k = 0; k < player;k++){
+                        //if(!go_localBlocks[player,i,j].activeSelf) {
+                            Vector4 v4_boundingBox = new Vector4(v2_curPos[k].x-i_xzRes/2f,v2_curPos[k].y-i_xzRes/2f,v2_curPos[k].x+i_xzRes/2f,v2_curPos[k].y+i_xzRes/2f);
+                            if(go_localBlocks[player,i,j].transform.position.x > v4_boundingBox.x &&
+                                go_localBlocks[player,i,j].transform.position.z > v4_boundingBox.y && 
+                                go_localBlocks[player,i,j].transform.position.x < v4_boundingBox.z && 
+                                go_localBlocks[player,i,j].transform.position.z < v4_boundingBox.w){
+                                b_exists = true;
+                            }
+                        //}
+                    }
+                    //if(!go_localBlocks[player,i,j].activeSelf) {
+                    	for(int k = 0; k < l_track.Count; k++) {
+                    		if(go_localBlocks[player,i,j].transform.position.x == l_track[k].transform.position.x &&
+                    			go_localBlocks[player,i,j].transform.position.z == l_track[k].transform.position.z)
+                    			b_exists = true;
+                    	}
+                    	if(!b_exists) {
+                       		go_localBlocks[player,i,j].SetActive(true);
+                    	}
+                    	else go_localBlocks[player,i,j].SetActive(false);Zz
+                    //}
+                }
+            }
+        }
+	}*/
 	public void Randomize() {
 		i_yRes = Random.Range(i_xzRes/2,i_xzRes);
 		f_blendAmount = Random.Range(0.5f,0.95f);
-		f_trackRoughness = Random.Range(0.25f,f_blendAmount);
+		f_trackRoughness = Random.Range(f_blendAmount*0.5f,f_blendAmount);
 		f_elevationSmoothHeight = Random.Range(0.0f,0.8f);
 		f_elevationSmoothStrength = Random.Range(0f,0.95f);
 		f_sampleSizes[0] = Random.Range(0f,2f);

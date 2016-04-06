@@ -50,7 +50,7 @@ public class c_envgen_r1 : MonoBehaviour {
         RenderSettings.skybox.SetFloat("_AtmosphereThickness",f_atmosphere);
         RenderSettings.skybox.SetFloat("_SunSize",f_sunSize);
         RenderSettings.fogColor = c_skyColor;
-        RenderSettings.fogDensity = 0.075f*f_atmosphere;
+        RenderSettings.fogDensity = 0.05f*f_atmosphere;
         
         
         c_terrainColor1 = new Color(Random.Range(0f,1f),Random.Range(0f,1f),Random.Range(0f,1f),1);
