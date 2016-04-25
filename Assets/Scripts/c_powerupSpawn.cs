@@ -3,8 +3,8 @@ using System.Collections;
 
 public class c_powerupSpawn : MonoBehaviour {
 	public c_waypoint_r1 c_waypoint;
-	public c_trackgen_r1 c_trackgen;
-	public c_terraingen_r4 c_terraingen;
+	public c_trackgen_r2 c_trackgen;
+	public c_terraingen_r6 c_terraingen;
 	public GameObject go_powerup;
 	public Transform t_leader;
 	public int i_spawnInterval;
@@ -25,7 +25,7 @@ public class c_powerupSpawn : MonoBehaviour {
 	i_spawnInterval = Random.Range(35,75);
 
 	}
-	
+
 	// Update is called once per frame
 	void Update () {
 	t_leader = c_terraingen.go_focalPoint[c_terraingen.i_lead].transform;
@@ -33,7 +33,7 @@ public class c_powerupSpawn : MonoBehaviour {
 	if(i_curWaypoint != i_prevWaypoint) {
 		NextWaypoint();
 	}
-	i_prevWaypoint = i_curWaypoint;	
+	i_prevWaypoint = i_curWaypoint;
 	}
 	void NextWaypoint(){
 		if(i_curWaypoint%i_spawnInterval == 0) {

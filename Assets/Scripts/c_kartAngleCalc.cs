@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class c_kartAngleCalc : MonoBehaviour {
-	public c_terraingen_r4 c_terraingen;
+	public c_terraingen_r6 c_terraingen;
 	public KartController_pat1 c_kartcontroller;
 	public Transform t_box;
 	public float f_kartLength, f_kartWidth,f_lossyKartLength,f_lossyKartWidth;
@@ -40,37 +40,65 @@ public class c_kartAngleCalc : MonoBehaviour {
 		if(Physics.Raycast(new Vector3(v2_frontLeft.x,c_terraingen.i_yRes,v2_frontLeft.y),-Vector3.up,out hit, lm_ignorelayer)) {
 //			print(hit.transform.name);
 			
-			if(hit.transform.name == "p_track(Old)" || hit.transform.name == "p_track(New)")
+			if(hit.transform.tag == "Track")
 				f_frontLeftHeight = c_terraingen.SampleTerrain(v2_frontLeft,c_terraingen.f_trackRoughness)*c_terraingen.i_yRes;
-			else if(hit.transform.name == "p_terrain")
+			else if(hit.transform.tag == "Terrain") {
+			float f_ySampleBL,f_ySampleTL,f_ySampleBR,f_ySampleTR;
+			f_ySampleBL = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_frontLeft.x)-0.5f,Mathf.Round(v2_frontLeft.y)-0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleTL = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_frontLeft.x)-0.5f,Mathf.Round(v2_frontLeft.y)+0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleBR = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_frontLeft.x)+0.5f,Mathf.Round(v2_frontLeft.y)-0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleTR = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_frontLeft.x)+0.5f,Mathf.Round(v2_frontLeft.y)+0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes);
+			float f_ySample = Mathf.Lerp(Mathf.Lerp(f_ySampleBL,f_ySampleTL,v2_frontLeft.y-(Mathf.Round(v2_frontLeft.y)-0.5f)),Mathf.Lerp(f_ySampleBR,f_ySampleTR,v2_frontLeft.y-(Mathf.Round(v2_frontLeft.y)-0.5f)),v2_frontLeft.x-(Mathf.Round(v2_frontLeft.x)-0.5f));
 				f_frontLeftHeight = c_terraingen.SampleTerrain(v2_frontLeft,c_terraingen.f_blendAmount)*c_terraingen.i_yRes;
+				}
 			//*/
 			//f_frontLeftHeight = hit.point.y;
 			}
 			
 		if(Physics.Raycast(new Vector3(v2_frontRight.x,c_terraingen.i_yRes,v2_frontRight.y),-Vector3.up,out hit, lm_ignorelayer)) {
 			
-			if(hit.transform.name == "p_track(Old)" || hit.transform.name == "p_track(New)")
+			if(hit.transform.tag == "Track")
 				f_frontRightHeight = c_terraingen.SampleTerrain(v2_frontRight,c_terraingen.f_trackRoughness)*c_terraingen.i_yRes;
-			else if(hit.transform.name == "p_terrain")
+			else if(hit.transform.tag == "Terrain") {
+			float f_ySampleBL,f_ySampleTL,f_ySampleBR,f_ySampleTR;
+			f_ySampleBL = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_frontRight.x)-0.5f,Mathf.Round(v2_frontRight.y)-0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleTL = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_frontRight.x)-0.5f,Mathf.Round(v2_frontRight.y)+0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleBR = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_frontRight.x)+0.5f,Mathf.Round(v2_frontRight.y)-0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleTR = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_frontRight.x)+0.5f,Mathf.Round(v2_frontRight.y)+0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes);
+			float f_ySample = Mathf.Lerp(Mathf.Lerp(f_ySampleBL,f_ySampleTL,v2_frontRight.y-(Mathf.Round(v2_frontRight.y)-0.5f)),Mathf.Lerp(f_ySampleBR,f_ySampleTR,v2_frontRight.y-(Mathf.Round(v2_frontRight.y)-0.5f)),v2_frontRight.x-(Mathf.Round(v2_frontRight.x)-0.5f));
 				f_frontRightHeight = c_terraingen.SampleTerrain(v2_frontRight,c_terraingen.f_blendAmount)*c_terraingen.i_yRes;
+				}
 			//	*/
 			//f_frontRightHeight = hit.point.y;
 			}
 		if(Physics.Raycast(new Vector3(v2_backLeft.x,c_terraingen.i_yRes,v2_backLeft.y),-Vector3.up,out hit, lm_ignorelayer)) {
-			if(hit.transform.name == "p_track(Old)" || hit.transform.name == "p_track(New)")
+			if(hit.transform.tag == "Track")
 				f_backLeftHeight = c_terraingen.SampleTerrain(v2_backLeft,c_terraingen.f_trackRoughness)*c_terraingen.i_yRes;
-			else if(hit.transform.name == "p_terrain")
+			else if(hit.transform.tag == "Terrain") {
+			float f_ySampleBL,f_ySampleTL,f_ySampleBR,f_ySampleTR;
+			f_ySampleBL = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_backLeft.x)-0.5f,Mathf.Round(v2_backLeft.y)-0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleTL = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_backLeft.x)-0.5f,Mathf.Round(v2_backLeft.y)+0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleBR = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_backLeft.x)+0.5f,Mathf.Round(v2_backLeft.y)-0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleTR = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_backLeft.x)+0.5f,Mathf.Round(v2_backLeft.y)+0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes);
+			float f_ySample = Mathf.Lerp(Mathf.Lerp(f_ySampleBL,f_ySampleTL,v2_backLeft.y-(Mathf.Round(v2_backLeft.y)-0.5f)),Mathf.Lerp(f_ySampleBR,f_ySampleTR,v2_backLeft.y-(Mathf.Round(v2_backLeft.y)-0.5f)),v2_backLeft.x-(Mathf.Round(v2_backLeft.x)-0.5f));
 				f_backLeftHeight = c_terraingen.SampleTerrain(v2_backLeft,c_terraingen.f_blendAmount)*c_terraingen.i_yRes;
+				}
 			//	*/
 			//f_backLeftHeight = hit.point.y;				
 			}
 		if(Physics.Raycast(new Vector3(v2_backRight.x,c_terraingen.i_yRes,v2_backRight.y),-Vector3.up,out hit, lm_ignorelayer)) {
 			
-			if(hit.transform.name == "p_track(Old)" || hit.transform.name == "p_track(New)")
+			if(hit.transform.tag == "Track")
 				f_backRightHeight = c_terraingen.SampleTerrain(v2_backRight,c_terraingen.f_trackRoughness)*c_terraingen.i_yRes;
-			else if(hit.transform.name == "p_terrain")
+			else if(hit.transform.tag == "Terrain") {
+			float f_ySampleBL,f_ySampleTL,f_ySampleBR,f_ySampleTR;
+			f_ySampleBL = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_backRight.x)-0.5f,Mathf.Round(v2_backRight.y)-0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleTL = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_backRight.x)-0.5f,Mathf.Round(v2_backRight.y)+0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleBR = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_backRight.x)+0.5f,Mathf.Round(v2_backRight.y)-0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes); 
+			f_ySampleTR = Mathf.Ceil(c_terraingen.SampleTerrain(new Vector2(Mathf.Round(v2_backRight.x)+0.5f,Mathf.Round(v2_backRight.y)+0.5f),c_terraingen.f_blendAmount)*c_terraingen.i_yRes);
+			float f_ySample = Mathf.Lerp(Mathf.Lerp(f_ySampleBL,f_ySampleTL,v2_backRight.y-(Mathf.Round(v2_backRight.y)-0.5f)),Mathf.Lerp(f_ySampleBR,f_ySampleTR,v2_backRight.y-(Mathf.Round(v2_backRight.y)-0.5f)),v2_backRight.x-(Mathf.Round(v2_backRight.x)-0.5f));
 				f_backRightHeight = c_terraingen.SampleTerrain(v2_backRight,c_terraingen.f_blendAmount)*c_terraingen.i_yRes;
+				}
 				
 			//f_backRightHeight = hit.point.y;
 			}
