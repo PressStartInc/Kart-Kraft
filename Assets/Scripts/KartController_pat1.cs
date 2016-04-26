@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class KartController_pat1 : MonoBehaviour {
-	public c_terraingen_r4 c_terrainGen;
+	public c_terraingen_r6 c_terrainGen;
 	public c_kartAngleCalc c_kartAngleCalc;
 	public KartState state;
 	public bool b_AI;
@@ -111,32 +111,37 @@ public class KartController_pat1 : MonoBehaviour {
 			f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
 		}
 		else {
-			f_ySample = Mathf.Ceil(c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+5f+f_radius;
+			float f_ySampleBL,f_ySampleTL,f_ySampleBR,f_ySampleTR;
+			f_ySampleBL = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_pos.x)-0.5f,Mathf.Round(v2_pos.y)-0.5f),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius; 
+			f_ySampleTL = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_pos.x)-0.5f,Mathf.Round(v2_pos.y)+0.5f),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius; 
+			f_ySampleBR = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_pos.x)+0.5f,Mathf.Round(v2_pos.y)-0.5f),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius; 
+			f_ySampleTR = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_pos.x)+0.5f,Mathf.Round(v2_pos.y)+0.5f),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius; 
+			f_ySample = Mathf.Lerp(Mathf.Lerp(f_ySampleBL,f_ySampleTL,v2_pos.y-(Mathf.Round(v2_pos.y)-0.5f)),Mathf.Lerp(f_ySampleBR,f_ySampleTR,v2_pos.y-(Mathf.Round(v2_pos.y)-0.5f)),v2_pos.x-(Mathf.Round(v2_pos.x)-0.5f));
 		}
 
 		transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);	
 
 
-		if	((Input.GetAxis("p"+s_player+"Steer") < 0)|| Input.GetKey(KeyCode.A) || (b_AI && i_AIDirection == 0)){
+		if	((!b_AI && (Input.GetAxis("p"+s_player+"Steer") < 0)|| Input.GetKey(KeyCode.A)) || (b_AI && i_AIDirection == 0)){
 			if(f_mVelocity > 0)
 				transform.Rotate(0,-f_modTurnStrength*Time.deltaTime,0);
 			else
 				transform.Rotate(0,f_modTurnStrength*Time.deltaTime,0);
 		}
-		else if((Input.GetAxis("p"+s_player+"Steer") > 0) || Input.GetKey(KeyCode.D) || (b_AI && i_AIDirection == 1)) {
+		else if((!b_AI && (Input.GetAxis("p"+s_player+"Steer") > 0) || Input.GetKey(KeyCode.D)) || (b_AI && i_AIDirection == 1)) {
 			if(f_mVelocity > 0)
 				transform.Rotate(0,f_modTurnStrength*Time.deltaTime,0);
 			else 
 				transform.Rotate(0,-f_modTurnStrength*Time.deltaTime,0);
 		}
 		
-		if((Input.GetAxis("p"+s_player+"Accel") > 0) || Input.GetKey(KeyCode.W) || (b_AI && b_AIForward)) {
+		if((!b_AI && (Input.GetAxis("p"+s_player+"Accel") > 0) || Input.GetKey(KeyCode.W)) || (b_AI && b_AIForward)) {
 			f_mVelocity = f_mVelocity+f_acceleration*Time.deltaTime;
 			if(f_mVelocity < 0)
 				f_mVelocity = f_mVelocity+f_handbreakValue*Time.deltaTime;
 
 		}
-		else if((Input.GetAxis("p"+s_player+"Accel") < 0) || Input.GetKey(KeyCode.S)) {
+		else if((!b_AI && (Input.GetAxis("p"+s_player+"Accel") < 0) || Input.GetKey(KeyCode.S))) {
 			f_mVelocity = f_mVelocity-f_acceleration*Time.deltaTime;
 			if(f_mVelocity > 0)
 				f_mVelocity = f_mVelocity-f_handbreakValue*Time.deltaTime;
@@ -146,18 +151,21 @@ public class KartController_pat1 : MonoBehaviour {
 		else if(f_mVelocity >= -0.1f && f_mVelocity <= 0.1f) f_mVelocity = 0;
 		else f_mVelocity = 0f;
 		
-		if (Input.GetButton("p"+s_player+"HBrake"))
+		if (!b_AI && Input.GetButton("p"+s_player+"HBrake"))
 			f_mVelocity = f_mVelocity - f_acceleration * 1.5f * Time.deltaTime;
 		
 		//if (Input.GetButton("p"+s_player+"Item"))
 			//UseItem();
-		
-		if(f_mVelocity > f_mMaxVelocity) f_mVelocity = f_mVelocity-f_acceleration*1.1f*Time.deltaTime;
-		
-		if(f_mVelocity < -f_mMaxVelocity*0.5f) f_mVelocity = f_mVelocity+f_acceleration*1.1f*Time.deltaTime;
-		
-		if(f_bumperY > f_curY+0.5f && !b_bumperOnTrack)
-			f_mVelocity = -f_mVelocity*0.5f;
+		if(b_onTrack) {
+			if(f_mVelocity > f_mMaxVelocity) f_mVelocity = f_mVelocity-f_acceleration*1.1f*Time.deltaTime;
+			if(f_mVelocity < -f_mMaxVelocity*0.5f) f_mVelocity = f_mVelocity+f_acceleration*1.1f*Time.deltaTime;
+		}
+		else {
+			if(f_mVelocity > f_mMaxVelocity*0.75f) f_mVelocity = f_mVelocity-f_acceleration*1.1f*Time.deltaTime;
+			if(f_mVelocity < -f_mMaxVelocity*0.5f*0.75f) f_mVelocity = f_mVelocity+f_acceleration*1.1f*Time.deltaTime;
+		}
+		//if(f_bumperY > f_curY+0.5f && !b_bumperOnTrack)
+		//	f_mVelocity = -f_mVelocity*0.5f;
 		
 		if((b_onTrack && (f_zAngleDelta)-f_zAngle*0.01f > f_angleBreak) || (!b_onTrack && f_ySample-0.75f > f_bumperY))
 			state = KartState.airborne;
