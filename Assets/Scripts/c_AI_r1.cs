@@ -2,13 +2,14 @@
 using System.Collections;
 
 public class c_AI_r1 : MonoBehaviour {
-	public c_terraingen_r4 c_terraingen;
+	public c_terraingen_r6 c_terraingen;
 	public c_racecontroller c_racecontroller;
 	public c_waypoint_r1 c_waypoint;
 	public bool b_randomize;
 	public int i_kartRef, i_curWaypoint, i_nextWaypoint,i_waypointDirection;
+	public Vector2 v2_nextWaypointPos;
 	public KartController_pat1 c_kartcontroller;
-	public float f_angle, f_angleLenience, f_anglePanic;
+	public float f_angle, f_cross, f_angleLenience, f_anglePanic;
 	public bool b_start, b_sharpTurn;
 	public float f_turnDuration, f_minTurnDuration,f_maxTurnDuration,f_turnTimeout, f_minTurnTimeout,f_maxTurnTimeout;
 	public float f_turnDurationTimer,f_turnTimeoutTimer;
@@ -115,7 +116,8 @@ public class c_AI_r1 : MonoBehaviour {
 			state = AIState.follower;
 
 		if(i_curWaypoint < c_terraingen.i_waypoint[c_terraingen.i_lead]) {
-		if(Vector3.Cross(new Vector2(transform.TransformPoint(0,0,1).x,transform.TransformPoint(0,0,1).z)-new Vector2(transform.position.x,transform.position.z),(c_waypoint.l_waypoints[i_nextWaypoint])-new Vector2(transform.position.x,transform.position.z)).z > 0)
+		f_cross = Vector3.Cross(new Vector2(transform.TransformPoint(0,0,1).x,transform.TransformPoint(0,0,1).z)-new Vector2(transform.position.x,transform.position.z),(c_waypoint.l_waypoints[i_nextWaypoint])-new Vector2(transform.position.x,transform.position.z)).z;
+			if(f_cross > 0)
 			i_waypointDirection = 0; //left
 		else i_waypointDirection = 1; //right			
 		f_angle = Vector2.Angle(new Vector2(transform.TransformPoint(0,0,1).x,transform.TransformPoint(0,0,1).z)-new Vector2(transform.position.x,transform.position.z),c_waypoint.l_waypoints[i_nextWaypoint]-new Vector2(transform.position.x,transform.position.z));
@@ -136,6 +138,7 @@ public class c_AI_r1 : MonoBehaviour {
 
 		i_curWaypoint = c_terraingen.i_waypoint[i_kartRef];
 		i_nextWaypoint = i_curWaypoint+1;
+		v2_nextWaypointPos = c_waypoint.l_waypoints[i_nextWaypoint];
 		if(c_terraingen.go_focalPoint[c_terraingen.i_lead].transform == transform){
 			c_kartcontroller.f_mMaxVelocity=c_kartcontroller.f_mMaxVelocity*0.9f;
 			state = AIState.leader;
