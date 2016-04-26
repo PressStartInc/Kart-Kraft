@@ -34,7 +34,7 @@ public class KartController_pat1 : MonoBehaviour {
 		f_radius = transform.lossyScale.y/2f;	
 	}
 	
-	public void FixedUpdate(){
+	public void Update(){
 		v2_pos = new Vector2(transform.position.x,transform.position.z);
 		transform.Translate(0,0,f_zVelocity*Time.deltaTime);
 		l_track = c_terrainGen.l_track;
@@ -56,15 +56,15 @@ public class KartController_pat1 : MonoBehaviour {
 			}
 		if(f_mVelocity >= 0){
 			if(b_bumperOnTrack)
-				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
+				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 			else 
-				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+5f+f_radius;
+				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
 			}
 		else {
 			if(b_bumperOnTrack)
-				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
+				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 			else 
-				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+5f+f_radius;
+				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
 			}
 
 		f_zDelta = (f_curZ-f_prevZ)/Time.deltaTime;
@@ -87,7 +87,7 @@ public class KartController_pat1 : MonoBehaviour {
 	}
 	
 	public void Init() {
-		f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
+		f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 		transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);	
 		state = KartState.grounded;
 	}

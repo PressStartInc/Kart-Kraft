@@ -12,7 +12,9 @@ public class InvController : MonoBehaviour {
 	float maxVelocity;
 	// Object velocity = GetComponent(KartController_pat1).f_mVelocity;
 	private KartController_pat1 kartController;
-
+	public String s_player;
+	public HMissile hMissile;
+	public SMissile sMissile;
 
 	// void OnTriggerEnter(Collider other){
 	// 	if(other.gameObject.CompareTag("PickUp")){
@@ -30,14 +32,15 @@ public class InvController : MonoBehaviour {
 	// 		}
 	// 	}
 	// }
-	void Awake(){
+	void Start(){
 		kartController = GetComponent<KartController_pat1>();
+		s_player = kartController.s_player;
 	}
 
 	void FixedUpdate(){
         if (rolling)
         {
-            if (rollTime <= 0 || Input.GetKey(KeyCode.Tab))
+            if (rollTime <= 0 || Input.GetButton("p"+s_player+"Item"))
             {
                 heldItem = item;
                 rolling = false;
@@ -53,7 +56,7 @@ public class InvController : MonoBehaviour {
 			boostDuration -= Time.deltaTime;			
 		}
         Debug.Log("held item = " + heldItem);
-		if (Input.GetKey(KeyCode.Space)) useItem(1);
+		if (Input.GetButton("p"+s_player+"Item")) useItem(heldItem);
 	}
 
     public void getItem()
@@ -71,10 +74,11 @@ public class InvController : MonoBehaviour {
 			maxVelocity = kartController.f_mMaxVelocity;
 		}
 		if(usedItem==2){
-
+			sMissile = Instantiate(hMissile, transform.position, transform.rotation);
+			heldItem=3;
 		}
 		if(usedItem==3){
-
+			sMissile.GetComponent<HMissile>().detonate();
 		}
 		heldItem = 0;
 	}	
