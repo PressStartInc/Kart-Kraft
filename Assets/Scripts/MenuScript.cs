@@ -22,6 +22,21 @@ public class MenuScript : MonoBehaviour {
 	private Button[] roughOptions, flatOptions, flatHeightOptions,
         mountSizeOptions, biomeOptions, cpuOptions;
 
+	void Awake() {
+		if (PlayerPrefs.HasKey("roughness"))
+			roughness = PlayerPrefs.GetInt("roughness");
+		if (PlayerPrefs.HasKey("flatness"))
+			flatness = PlayerPrefs.GetInt("flatness");
+		if (PlayerPrefs.HasKey("flatHeight"))
+			flatHeight = PlayerPrefs.GetInt("flatHeight");
+		if (PlayerPrefs.HasKey("mountainSize"))
+			mountainSize = PlayerPrefs.GetInt("mountainSize");
+		if (PlayerPrefs.HasKey("biome"))
+			biome = PlayerPrefs.GetInt("biome");
+		if (PlayerPrefs.HasKey("numCPUs"))
+			numCPUs = PlayerPrefs.GetInt("numCPUs");
+	}
+		
 	void Start () {
 		QuitMenu   = QuitMenu.GetComponent<Canvas> ();
 		PlayerMenu = PlayerMenu.GetComponent<Canvas>();
@@ -245,6 +260,12 @@ public class MenuScript : MonoBehaviour {
 	public void P3Press () { numPlayers = 3; SeedPress (); }
 	public void P4Press () { numPlayers = 4; SeedPress (); }
 	public void StartLevel () {
+		PlayerPrefs.SetInt("roughness", roughness);
+		PlayerPrefs.SetInt("flatness", flatness);
+		PlayerPrefs.SetInt("flatHeight", flatHeight);
+		PlayerPrefs.SetInt("mountainSize", mountainSize);
+		PlayerPrefs.SetInt("biome", biome);
+		PlayerPrefs.SetInt("numCPUs", numCPUs);
 		// if (numPlayers == 1)
 			// SceneManager.LoadScene ("1P_Kart_Selection");
 		// else if (numPlayers == 2)
