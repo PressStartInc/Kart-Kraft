@@ -11,7 +11,7 @@ public class MenuScript : MonoBehaviour {
 	public Button yes, no;
 	public Button rLow, rMed, rHigh, rUltra, fLow, fMed, fHigh, fUltra,
 	        fhLow, fhMed, fhHigh, fhUltra, msLow, msMed, msHigh, msUltra,
-			lava, lunar, terra, snow, oneAI, twoAI, threeAI, fourAI, cancel;
+			lava, lunar, terra, snow, oneAI, twoAI, threeAI, fourAI, save;
 	
 	private int roughness, flatness, flatHeight, mountainSize, biome, numCPUs;
 	private int numPlayers = 0;
@@ -135,90 +135,72 @@ public class MenuScript : MonoBehaviour {
 		else
 		{
 			if (Input.GetAxis("MenuLR") > 0 && !sideButtonPushed) {
-				if ((index == 0) && subIndex+1 < roughOptions.Length) {
-					roughOptions[subIndex].GetComponent<Text>().color = Color.white;
-					roughOptions[++subIndex].GetComponent<Text>().color = Color.red;
+				if ((index == 0) && roughness+1 < roughOptions.Length) {
+					roughOptions[roughness++].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 1) && subIndex+1 < flatOptions.Length) {
-					flatOptions[subIndex].GetComponent<Text>().color = Color.white;
-					flatOptions[++subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 1) && flatness+1 < flatOptions.Length) {
+					flatOptions[flatness++].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 2) && subIndex+1 < flatHeightOptions.Length) {
-					flatHeightOptions[subIndex].GetComponent<Text>().color = Color.white;
-					flatHeightOptions[++subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 2) && flatHeight+1 < flatHeightOptions.Length) {
+					flatHeightOptions[flatHeight++].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 3) && subIndex+1 < mountSizeOptions.Length) {
-					mountSizeOptions[subIndex].GetComponent<Text>().color = Color.white;
-					mountSizeOptions[++subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 3) && mountainSize+1 < mountSizeOptions.Length) {
+					mountSizeOptions[mountainSize++].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 4) && subIndex+1 < biomeOptions.Length) {
-					biomeOptions[subIndex].GetComponent<Text>().color = Color.white;
-					biomeOptions[++subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 4) && biome+1 < biomeOptions.Length) {
+					biomeOptions[biome++].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 5) && subIndex+1 < cpuOptions.Length) {
-					cpuOptions[subIndex].GetComponent<Text>().color = Color.white;
-					cpuOptions[++subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 5) && numCPUs+1 < cpuOptions.Length) {
+					cpuOptions[numCPUs++].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
 				} 
 			} else if (Input.GetAxis("MenuLR") < 0 && !sideButtonPushed) {
-				if ((index == 0) && subIndex-1 >= 0) {
-					roughOptions[subIndex].GetComponent<Text>().color = Color.white;
-					roughOptions[--subIndex].GetComponent<Text>().color = Color.red;
+				if ((index == 0) && roughness-1 >= 0) {
+					roughOptions[roughness--].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 1) && subIndex-1 >= 0) {
-					flatOptions[subIndex].GetComponent<Text>().color = Color.white;
-					flatOptions[--subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 1) && flatness-1 >= 0) {
+					flatOptions[flatness--].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 2) && subIndex-1 >= 0) {
-					flatHeightOptions[subIndex].GetComponent<Text>().color = Color.white;
-					flatHeightOptions[--subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 2) && flatHeight-1 > 0) {
+					flatHeightOptions[flatHeight--].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 3) && subIndex-1 >= 0) {
-					mountSizeOptions[subIndex].GetComponent<Text>().color = Color.white;
-					mountSizeOptions[--subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 3) && mountainSize-1 >= 0) {
+					mountSizeOptions[mountainSize--].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 4) && subIndex-1 >= 0) {
-					biomeOptions[subIndex].GetComponent<Text>().color = Color.white;
-					biomeOptions[--subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 4) && biome-1 >= 0) {
+					biomeOptions[biome--].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 5) && subIndex-1 >= 0) {
-					cpuOptions[subIndex].GetComponent<Text>().color = Color.white;
-					cpuOptions[--subIndex].GetComponent<Text>().color = Color.red;
+				} else if ((index == 5) && numCPUs-1 >= 0) {
+					cpuOptions[numCPUs--].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} 
+				}  
 			} else if (Input.GetAxis("MenuLR") == 0) { sideButtonPushed = false; }
 			
-			if (Input.GetButton("Submit"))
+			if (Input.GetAxis("MenuUD") < 0 && !upButtonPushed && index+1<=6) {
+				index++;
+				upButtonPushed = true;
+			} else if (Input.GetAxis("MenuUD") > 0 && !upButtonPushed && index-1>=0) {
+				index--;
+				upButtonPushed = true;
+			} else if (Input.GetAxis("MenuUD") == 0) { upButtonPushed = false; }
+			
+			if (index == 6)
+				save.GetComponent<Text>().color = Color.red;
+			else 
+				save.GetComponent<Text>().color = Color.white;
+			
+			roughOptions[roughness].GetComponent<Text>().color = Color.red;
+			flatOptions[flatness].GetComponent<Text>().color = Color.red;
+			flatHeightOptions[flatHeight].GetComponent<Text>().color = Color.red;
+			mountSizeOptions[mountainSize].GetComponent<Text>().color = Color.red;
+			biomeOptions[biome].GetComponent<Text>().color = Color.red;
+			cpuOptions[numCPUs].GetComponent<Text>().color = Color.red;
+			
+			if (Input.GetButton("Submit") && index == 6)
 			{	
-				switch (index) {
-					case 0:
-						roughPress(subIndex);
-						break;
-					case 1:
-						flatPress(subIndex);
-						break;
-					case 2:
-						flatHeightPress(subIndex);
-						break;
-					case 3:
-						mountSizePress(subIndex);
-						break;
-					case 4:
-						biomePress(subIndex);
-						break;
-					case 5:
-						cpuPress(subIndex);
-						break;
-				}
-				subIndex = 0;
+				StartLevel();
 			}
-			else if (Input.GetButton("Cancel")) 
-			{ 
-				if (index != 0)
-					index--;
-				else
-					NoPress(); 
-			}
+			else if (Input.GetButton("Cancel")) { index = 0; NoPress(); }
 		}
 	}
 	
@@ -246,83 +228,6 @@ public class MenuScript : MonoBehaviour {
 		QuitMenu.enabled = false;
 		StartText.enabled = false;
 		ExitText.enabled = false;
-	}
-	
-	public void roughPress(int level) {
-		index++;
-		if (level == 0)
-			roughness = level;
-		else if (level == 1)
-			roughness = level;
-		else if (level == 2)
-			roughness = level;
-		else if (level == 3)
-			roughness = level;
-		return;
-	}
-	
-	public void flatPress(int level) {
-		index++;
-		if (level == 0)
-			flatness = level;
-		else if (level == 1)
-			flatness = level;
-		else if (level == 2)
-			flatness = level;
-		else if (level == 3)
-			flatness = level;
-		return;
-	}
-	
-	public void flatHeightPress(int level) {
-		index++;
-		if (level == 0)
-			flatHeight = level;
-		else if (level == 1)
-			flatHeight = level;
-		else if (level == 2)
-			flatHeight = level;
-		else if (level == 3)
-			flatHeight = level;
-		return;
-	}
-	
-	public void mountSizePress(int level) {
-		index++;
-		if (level == 0)
-			mountainSize = level;
-		else if (level == 1)
-			mountainSize = level;
-		else if (level == 2)
-			mountainSize = level;
-		else if (level == 3)
-			mountainSize = level;
-		return;
-	}
-	
-	public void biomePress(int level) {
-		index++;
-		if (level == 0)
-			biome = level;
-		else if (level == 1)
-			biome = level;
-		else if (level == 2)
-			biome = level;
-		else if (level == 3)
-			biome = level;
-		return;
-	}
-	
-	public void cpuPress(int level) {
-		if (level == 0)
-			numCPUs = level;
-		else if (level == 1)
-			numCPUs = level;
-		else if (level == 2)
-			numCPUs = level;
-		else if (level == 3)
-			numCPUs = level;
-		return;
 	}
 	
 	public void NoPress () {
