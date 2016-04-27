@@ -11,7 +11,7 @@ public class KartController_pat1 : MonoBehaviour {
 	public bool b_onTrack, b_bumperOnTrack;
 	public int i_AIDirection = -1;
 	public Vector2 v2_pos, v2_bumperPos;
-	public List<Transform> l_track;
+	public List<Vector2> v2_tracks;
 	public float f_radius;
 	public float f_acceleration, f_gravity;
 	public float f_mVelocity, f_zVelocity, f_yVelocity;
@@ -34,37 +34,33 @@ public class KartController_pat1 : MonoBehaviour {
 		f_radius = transform.lossyScale.y/2f;	
 	}
 	
-	public void FixedUpdate(){
-		v2_pos = new Vector2(transform.position.x,transform.position.z);
-		transform.Translate(0,0,f_zVelocity*Time.deltaTime);
-		l_track = c_terrainGen.l_track;
-		f_curY = transform.position.y;
-		f_curZ = transform.position.z;
-		b_onTrack = false;
-		b_bumperOnTrack = false;
-		if(f_mVelocity > 0f)
-			v2_bumperPos = new Vector2(transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).z);
-		else if(f_mVelocity < 0f) 
-			v2_bumperPos= new Vector2(transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).z);
-		else v2_bumperPos = v2_pos;
-		for(int i = 0; i < l_track.Count;i++) {
-			if(l_track[i].transform.position.x == Mathf.Round(v2_pos.x) && l_track[i].transform.position.z == Mathf.Round(v2_pos.y))
-				b_onTrack = true;
-			if(l_track[i].transform.position.x == Mathf.Round(v2_bumperPos.x) && 
-				l_track[i].transform.position.z == Mathf.Round(v2_bumperPos.y))
-					b_bumperOnTrack = true;			
-			}
+	public void Update(){
+	v2_pos = new Vector2(transform.position.x,transform.position.z);
+	transform.Translate(0,0,f_zVelocity*Time.deltaTime);
+	v2_tracks = c_terrainGen.v2_tracks;
+	f_curY = transform.position.y;
+	f_curZ = transform.position.z;
+	b_onTrack = false;
+	b_bumperOnTrack = false;
+	if(f_mVelocity > 0f)
+		v2_bumperPos = new Vector2(transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).z);
+	else if(f_mVelocity < 0f)
+		v2_bumperPos= new Vector2(transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).z);
+	else v2_bumperPos = v2_pos;
+	if(Physics.Raycast(transform.TransformPoint(0,10,0),-Vector3.up,c_terrainGen.i_yRes,c_terrainGen.lm_trackCheck)){
+			b_onTrack = true;
+		}
 		if(f_mVelocity >= 0){
 			if(b_bumperOnTrack)
-				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
+				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 			else 
-				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+5f+f_radius;
+				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
 			}
 		else {
 			if(b_bumperOnTrack)
-				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
+				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 			else 
-				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+5f+f_radius;
+				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
 			}
 
 		f_zDelta = (f_curZ-f_prevZ)/Time.deltaTime;
@@ -87,7 +83,7 @@ public class KartController_pat1 : MonoBehaviour {
 	}
 	
 	public void Init() {
-		f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
+		f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 		transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);	
 		state = KartState.grounded;
 	}
@@ -95,7 +91,7 @@ public class KartController_pat1 : MonoBehaviour {
 	public void Grounded() {
 		f_zAngleDelta = (-Mathf.Atan2((f_yDelta),(f_zDelta))-f_zAngle);
 		f_zAngle = -Mathf.Atan2((f_yDelta),(f_zDelta));//print(f_zAngle + " " + c_kartAngleCalc.f_xAngle);
-		f_angleBreak = 5f*Mathf.Clamp(1f-Mathf.Clamp(f_mVelocity,0,f_mMaxVelocity)/(f_mMaxVelocity*1.01f),0,1f);
+		f_angleBreak = 20f*Mathf.Clamp(1f-Mathf.Clamp(f_mVelocity,0,f_mMaxVelocity)/(f_mMaxVelocity*1.01f),0,1f);
 		
 		float f_zRadians = c_kartAngleCalc.f_xAngle * Mathf.PI/180f;
 		float f_zVelocityRatio = Mathf.Cos(f_zRadians);
@@ -108,7 +104,7 @@ public class KartController_pat1 : MonoBehaviour {
 		f_modTurnStrength = f_turnStrength*Mathf.Abs(1f-Mathf.Abs(Mathf.Abs(f_mVelocity)-f_mMaxVelocity*0.75f)/(f_mMaxVelocity*0.75f));		
 
 		if(b_onTrack) {
-			f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
+			f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 		}
 		else {
 			float f_ySampleBL,f_ySampleTL,f_ySampleBR,f_ySampleTR;
@@ -167,7 +163,7 @@ public class KartController_pat1 : MonoBehaviour {
 		//if(f_bumperY > f_curY+0.5f && !b_bumperOnTrack)
 		//	f_mVelocity = -f_mVelocity*0.5f;
 		
-		if((b_onTrack && (f_zAngleDelta)-f_zAngle*0.01f > f_angleBreak) || (!b_onTrack && f_ySample-0.75f > f_bumperY))
+		if(b_onTrack && (f_zAngleDelta-f_zAngle*0.01f) > f_angleBreak)
 			state = KartState.airborne;
 	}
 
@@ -175,11 +171,11 @@ public class KartController_pat1 : MonoBehaviour {
 		f_yVelocity = f_yVelocity+f_gravity*Time.deltaTime;
 		float f_ySample;
 		if(b_onTrack) {
-			f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+5f+f_radius;
+			f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 
 		}
 		else {
-			f_ySample = Mathf.Ceil(c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+5f+f_radius;
+			f_ySample = Mathf.Ceil(c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
 		}
 		if((transform.position.y+f_yVelocity*Time.deltaTime) < f_ySample && f_ySample-f_bumperY < 0.5f){
 			transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);
