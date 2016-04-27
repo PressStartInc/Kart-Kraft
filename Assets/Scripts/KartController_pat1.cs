@@ -11,7 +11,7 @@ public class KartController_pat1 : MonoBehaviour {
 	public bool b_onTrack, b_bumperOnTrack;
 	public int i_AIDirection = -1;
 	public Vector2 v2_pos, v2_bumperPos;
-	public List<Vector2> v2_tracks;
+	public List<Transform> l_track;
 	public float f_radius;
 	public float f_acceleration, f_gravity;
 	public float f_mVelocity, f_zVelocity, f_yVelocity;
@@ -35,10 +35,9 @@ public class KartController_pat1 : MonoBehaviour {
 	}
 	
 	public void Update(){
-<<<<<<< HEAD
 	v2_pos = new Vector2(transform.position.x,transform.position.z);
 	transform.Translate(0,0,f_zVelocity*Time.deltaTime);
-	v2_tracks = c_terrainGen.v2_tracks;
+//	v2_tracks = c_terrainGen.v2_tracks;
 	f_curY = transform.position.y;
 	f_curZ = transform.position.z;
 	b_onTrack = false;
@@ -51,7 +50,6 @@ public class KartController_pat1 : MonoBehaviour {
 	if(Physics.Raycast(transform.TransformPoint(0,10,0),-Vector3.up,c_terrainGen.i_yRes,c_terrainGen.lm_trackCheck)){
 			b_onTrack = true;
 		}
-=======
 		v2_pos = new Vector2(transform.position.x,transform.position.z);
 		transform.Translate(0,0,f_zVelocity*Time.deltaTime);
 		l_track = c_terrainGen.l_track;
@@ -71,7 +69,6 @@ public class KartController_pat1 : MonoBehaviour {
 				l_track[i].transform.position.z == Mathf.Round(v2_bumperPos.y))
 					b_bumperOnTrack = true;			
 			}
->>>>>>> 1b89f1b02623a9348c8e0dbd9abc105470b425d3
 		if(f_mVelocity >= 0){
 			if(b_bumperOnTrack)
 				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;

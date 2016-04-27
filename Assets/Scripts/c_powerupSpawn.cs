@@ -44,7 +44,7 @@ public class c_powerupSpawn : MonoBehaviour {
 	void SpawnPowerups() {
 		for(int i = 0; i < i_powerups2Spawn; i++) {
 			float f_x = -(i_trackCollider.radius)+i*f_powerupSpread;
-			float f_y = c_terraingen.SampleTerrain(new Vector2(t_leader.TransformPoint(f_x,0,0).x,t_leader.TransformPoint(f_x,0,0).z),c_terraingen.f_trackRoughness)*c_terraingen.i_yRes+5.25f;
+			float f_y = c_terraingen.SampleTerrain(new Vector2(t_leader.TransformPoint(f_x,0,0).x,t_leader.TransformPoint(f_x,0,0).z),c_terraingen.f_trackRoughness)*c_terraingen.i_yRes+0.25f;
 			print(f_y);
 			Instantiate(go_powerup,new Vector3(t_leader.TransformPoint(f_x,0,0).x,f_y,t_leader.TransformPoint(f_x,0,0).z),Quaternion.identity);
 		}

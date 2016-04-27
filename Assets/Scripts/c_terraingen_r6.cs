@@ -73,13 +73,13 @@ public class c_terraingen_r6 : MonoBehaviour {
             i_placement[i] = i;
             go_focalPoint[i].transform.position = new Vector3(i_chunkSize/2f,go_focalPoint[0].transform.position.y,i_chunkSize/2f-i_kartSeparation*i);
            	go_focalPoint[i].transform.position = new Vector3(go_focalPoint[i].transform.position.x,(SampleTerrain(new Vector2(go_focalPoint[i].transform.position.x,go_focalPoint[i].transform.position.z),f_trackRoughness)*i_yRes)+5.5f,go_focalPoint[i].transform.position.z);
-            v2_curPos[i].x = Mathf.Floor(go_focalPoint[i].transform.position.x)/i_chunkSize;
-		    v2_curPos[i].y = Mathf.Floor(go_focalPoint[i].transform.position.z)/i_chunkSize;
+            v2_curPos[i].x = Mathf.Floor(go_focalPoint[i].transform.position.x/i_chunkSize);
+		    v2_curPos[i].y = Mathf.Floor(go_focalPoint[i].transform.position.z/i_chunkSize);
          	t_chunkHolder[i] = new GameObject().transform;
          	t_chunkHolder[i].transform.name = "Player " + (i+1) + " chunks";   
-
+			GenerateScenery(i);
         }
-        UpdateTerrain(0);
+        
         b_kartsPlaced = true;
 		l_track = new List<Transform>();
 	}
@@ -109,11 +109,21 @@ public class c_terraingen_r6 : MonoBehaviour {
 					t_detailedTerrain[i,j,k].GetComponent<Renderer>().material = m_terrainMat;
 					t_detailedTerrain[i,j,k].GetComponent<MeshRenderer>().enabled = true;
 					t_detailedTerrain[i,j,k].parent = t_detailHolder[i];
+					bool b_spotTaken = false;
+					for(int l = 0; l < i; l++) {
+						if(Mathf.Abs(Mathf.Floor(v3_terrainObjectPos.x/i_chunkSize)-v2_curPos[l].x) <= i_detailRegion && Mathf.Abs(Mathf.Floor(v3_terrainObjectPos.z/i_chunkSize)-v2_curPos[l].y) <= i_detailRegion){
+							b_spotTaken = true;
+						}
+					}
 					RaycastHit hit;
 					if(Physics.Raycast(new Vector3(v3_terrainObjectPos.x,i_yRes,v3_terrainObjectPos.z),-Vector3.up,out hit,i_yRes*2,lm_trackCheck) || Physics.Raycast(new Vector3(v3_terrainObjectPos.x,i_yRes,v3_terrainObjectPos.z),-Vector3.up,out hit,i_yRes*2,lm_terrainCheck)){
 						if(hit.transform.tag == "Terrain")
 							TransformMesh(t_detailedTerrain[i,j,k].gameObject,new Vector2(v3_terrainObjectPos.x,v3_terrainObjectPos.z),1f,false);
+						if(hit.transform.tag == "Track")
+							b_spotTaken = true;
 					}
+					if(b_spotTaken)
+						t_detailedTerrain[i,j,k].gameObject.SetActive(false);
 				}
 			}
 
@@ -129,60 +139,78 @@ public class c_terraingen_r6 : MonoBehaviour {
 		for(int i = 0; i < l_chunks[player].Count;i++){
 			Vector2 v2_otherChunkPos = new Vector2(Mathf.Floor(l_chunks[player][i].transform.position.x/i_chunkSize),Mathf.Floor(l_chunks[player][i].transform.position.z)/i_chunkSize);
 			float f_checkDistance = Vector2.Distance(v2_otherChunkPos,v2_curPos[player]);
-			//print(l_chunks[player][i].transform.name + " , " + v2_curPos[player] + " --- " + Mathf.Abs(v2_otherChunkPos.x-v2_curPos[player].x) + ", " + Mathf.Abs(v2_otherChunkPos.y-v2_curPos[player].y));
 			if(f_checkDistance > i_viewDistance){
 				GameObject go_toDestroy = l_chunks[player][i].gameObject;
-				l_chunks[player].Remove(l_chunks[player][i]);
-					Destroy(go_toDestroy);
+				l_chunks[player].RemoveAt(i);
+				i--;
+				Destroy(go_toDestroy);
 			}
 		}
 		for(int i = 0; i < go_focalPoint.Length; i++) {
 			for(int j = 0; j < l_chunks[i].Count; j++) {
-			Vector2 v2_otherChunkPos = new Vector2(Mathf.Floor(l_chunks[i][j].transform.position.x/i_chunkSize),Mathf.Floor(l_chunks[i][j].transform.position.z)/i_chunkSize);
-			if(Mathf.Abs(v2_otherChunkPos.x-v2_curPos[player].x) <= i_detailRegion && Mathf.Abs(v2_otherChunkPos.y-v2_curPos[player].y) <= i_detailRegion){
-				GameObject go_toDestroy = l_chunks[i][j].gameObject;
-				Vector2 v2_refPos = new Vector2((go_toDestroy.transform.position.x),(go_toDestroy.transform.position.z));
-				Vector2 v2_relPos = (new Vector2(Mathf.Floor(v2_refPos.x),Mathf.Floor(v2_refPos.y))/i_chunkSize)-v2_curPos[player];
-				float f_x = v2_refPos.x-v2_direction[player].x*(i_detailRegion*2+1)*i_chunkSize;
-				float f_y = v2_refPos.y-v2_direction[player].y*(i_detailRegion*2+1)*i_chunkSize;
+				Vector2 v2_otherChunkPos = new Vector2(Mathf.Floor(l_chunks[i][j].transform.position.x/i_chunkSize),Mathf.Floor(l_chunks[i][j].transform.position.z)/i_chunkSize);
+				if(Mathf.Abs(v2_otherChunkPos.x-v2_curPos[player].x) <= i_detailRegion && Mathf.Abs(v2_otherChunkPos.y-v2_curPos[player].y) <= i_detailRegion){
+					GameObject go_toDestroy = l_chunks[i][j].gameObject;
+					Vector2 v2_refPos = new Vector2((go_toDestroy.transform.position.x),(go_toDestroy.transform.position.z));
+					Vector2 v2_relPos = (new Vector2(Mathf.Floor(v2_refPos.x),Mathf.Floor(v2_refPos.y))/i_chunkSize)-v2_curPos[player];
+					float f_x = v2_refPos.x-v2_direction[player].x*(i_detailRegion*2+1)*i_chunkSize;
+					float f_y = v2_refPos.y-v2_direction[player].y*(i_detailRegion*2+1)*i_chunkSize;
+					bool b_outside = true;
+					for(int k = 0; k < player+1; k++) {
+						if(Mathf.Abs(f_x-v2_curPos[k].x) > i_detailRegion &&  Mathf.Abs(f_y-v2_curPos[k].y) > i_detailRegion){
+							b_outside = false;
+						}
+					}
+					if(b_outside) {
+					Transform t_newChunk = new GameObject().transform;
+					t_newChunk.gameObject.AddComponent<MeshFilter>();
+					t_newChunk.gameObject.AddComponent<MeshRenderer>();
+					//print("Removing: " +l_chunks[i][l_chunks[i].IndexOf(go_toDestroy.transform)].name);
 
-				Transform t_newChunk = new GameObject().transform;
-				t_newChunk.gameObject.AddComponent<MeshFilter>();
-				t_newChunk.gameObject.AddComponent<MeshRenderer>();
-				l_chunks[i][l_chunks[i].IndexOf(go_toDestroy.transform)] = t_newChunk;
-				t_newChunk.name = "c: " + Mathf.Floor(f_x/i_chunkSize) + "," + Mathf.Floor(f_y/i_chunkSize);
-				t_newChunk.parent = t_chunkHolder[player];
-				//print(t_newChunk.name);
-				t_newChunk.position = new Vector3(f_x,0,f_y);
-				//print(t_newChunk.position);
-				GenerateChunk(t_newChunk.gameObject, new Vector2(f_x,f_y));
-				
-				Destroy(go_toDestroy);
-				//UnityEditor.EditorApplication.isPaused = true;
-				SwapDetail(player,v2_direction[player], v2_refPos);
-				//yield return null;
+					l_chunks[i][l_chunks[i].IndexOf(go_toDestroy.transform)] = t_newChunk;
+					t_newChunk.name = "c: " + Mathf.Floor(f_x/i_chunkSize) + "," + Mathf.Floor(f_y/i_chunkSize);
+					t_newChunk.parent = t_chunkHolder[player];
+			//print(t_newChunk.name);
+					t_newChunk.position = new Vector3(f_x,0,f_y);
+			//print(t_newChunk.position);
+					GenerateChunk(t_newChunk.gameObject, new Vector2(f_x,f_y));
+					}
+					else {
+						l_chunks[i].Remove(go_toDestroy.transform);
+						j--;
+					}
+					Destroy(go_toDestroy);
+			//UnityEditor.EditorApplication.isPaused = true;
+					SwapDetail(player,v2_direction[player], v2_refPos);
+			//yield return null;
 				}
 			}
 		}
 
-		StartCoroutine(GenerateScenery(player));
+		//StartCoroutine(GenerateScenery(player));
+		GenerateScenery(player);
 		
 		v2_lastPos[player] = v2_prevPos[player];
 	}
 
-	IEnumerator GenerateScenery(int player) {
+	void GenerateScenery(int player) {
 		for(int i = 0; i < i_viewDistance*2+1;i++) {
 			for(int j = 0; j < i_viewDistance*2+1;j++) {
 				bool b_chunkExists = false;
 				int i_x = (int)Mathf.Floor(go_focalPoint[player].transform.position.x/(float)i_chunkSize)-i_viewDistance+i;
 				int i_y = (int)Mathf.Floor(go_focalPoint[player].transform.position.z/(float)i_chunkSize)-i_viewDistance+j;
+//				print(v2_curPos[player] + ": " + i_x + ", " + i_y);
 				Vector2 v2_chunkPos = new Vector2(i_x,i_y);
-				float f_distance = Vector2.Distance(Vector2.zero,new Vector2(i-i_viewDistance,j-i_viewDistance));
-				for(int k = 0; k < go_focalPoint.Length; k++) {
+				float f_distance = 0;
+				for(int k = 0; k < (player+1); k++) {
+					f_distance = Vector2.Distance(v2_curPos[k],new Vector2(i-i_viewDistance,j-i_viewDistance)-v2_curPos[player]);
+					//if()
+				}
+				
+				for(int k = 0; k < (player+1); k++) {
 					for(int l = 0; l < l_chunks[k].Count; l++) {
 					Vector2 v2_otherChunkPos = new Vector2(Mathf.Floor(l_chunks[k][l].transform.position.x/i_chunkSize),Mathf.Floor(l_chunks[k][l].transform.position.z)/i_chunkSize);
-					//if(i == 0 && player == 1) print(v2_chunkPos + "  " + v2_otherChunkPos);
-					if(v2_chunkPos == v2_otherChunkPos || (Mathf.Abs(i-i_viewDistance) <= i_detailRegion && Mathf.Abs(j-i_viewDistance) <= i_detailRegion)) {
+					if(v2_chunkPos == v2_otherChunkPos || (Mathf.Abs(i_x-v2_curPos[player].x) <= i_detailRegion && Mathf.Abs(i_y-v2_curPos[player].y) <= i_detailRegion)) {
 						b_chunkExists = true;
 					}
 				}
@@ -200,9 +228,9 @@ public class c_terraingen_r6 : MonoBehaviour {
 				}
 			
 			}
-		yield return null;		
+		//yield return null;		
 		}
-
+//		print(l_chunks[player].Count);
 		for(int i = 0; i < i_chunkSize; i++){
 			for(int j = 0; j < i_chunkSize; j++){
 				go_terrainObjects[i,j].transform.parent = go_terrainStore.transform;
@@ -212,7 +240,8 @@ public class c_terraingen_r6 : MonoBehaviour {
 		
 	}
 	
-	void SwapDetail(int player, Vector2 v2_direction, Vector2 v2_refPos) {		
+	void SwapDetail(int player, Vector2 v2_direction, Vector2 v2_refPos) {
+//		print(v2_refPos);
 		if(v2_direction.y != 0){
 			for(int i = 0; i < i_chunkSize*(i_detailRegion*2+1);i++){
 				for(int j = 0; j < i_chunkSize*(i_detailRegion*2+1);j++) {
@@ -222,12 +251,21 @@ public class c_terraingen_r6 : MonoBehaviour {
 						if(t_detailedTerrain[player,i,j].position.z < Mathf.Floor(v2_refPos.y-i_chunkSize*(i_detailRegion*2)) &&
 							t_detailedTerrain[player,i,j].position.x >= Mathf.Floor(v2_refPos.x) && t_detailedTerrain[player,i,j].position.x < Mathf.Floor(v2_refPos.x)+i_chunkSize){
 							v2_newPos = new Vector2(t_detailedTerrain[player,i,j].position.x,t_detailedTerrain[player,i,j].position.z+i_chunkSize*(i_detailRegion*2+1));
-							RaycastHit hit;
-							if(Physics.Raycast(new Vector3(v2_newPos.x,i_yRes,v2_newPos.y),-Vector3.up,out hit,i_yRes,lm_trackCheck)){
-									t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,-10,v2_newPos.y);	
+							t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,0,v2_newPos.y);
+							bool b_spotTaken = false;
+							for(int k = 0; k < player; k++) {
+								if(Mathf.Abs(v2_newPos.x/i_chunkSize-v2_curPos[k].x) <= i_detailRegion && Mathf.Abs(v2_newPos.y/i_chunkSize-v2_curPos[k].y) <= i_detailRegion){
+									b_spotTaken = true;
+								}
 							}
+							RaycastHit hit;
+							if(b_spotTaken || Physics.Raycast(new Vector3(v2_newPos.x,i_yRes,v2_newPos.y),-Vector3.up,out hit,i_yRes,lm_trackCheck)){
+									if(t_detailedTerrain[player,i,j].gameObject.activeSelf)
+										t_detailedTerrain[player,i,j].gameObject.SetActive(false);
+								}
 							else {
-								t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,0,v2_newPos.y);
+								if(!t_detailedTerrain[player,i,j].gameObject.activeSelf)
+									t_detailedTerrain[player,i,j].gameObject.SetActive(true);
 								TransformMesh(t_detailedTerrain[player,i,j].gameObject,v2_newPos,1f,false);
 								}
 						}
@@ -236,12 +274,21 @@ public class c_terraingen_r6 : MonoBehaviour {
 						if(t_detailedTerrain[player,i,j].position.z >= Mathf.Floor(v2_refPos.y+i_chunkSize*(i_detailRegion*2+1)) &&
 							t_detailedTerrain[player,i,j].position.x >= Mathf.Floor(v2_refPos.x) && t_detailedTerrain[player,i,j].position.x < Mathf.Floor(v2_refPos.x)+i_chunkSize){
 							v2_newPos = new Vector2(t_detailedTerrain[player,i,j].position.x,t_detailedTerrain[player,i,j].position.z-i_chunkSize*(i_detailRegion*2+1));
-							RaycastHit hit;
-							if(Physics.Raycast(new Vector3(v2_newPos.x,i_yRes,v2_newPos.y),-Vector3.up,out hit,i_yRes,lm_trackCheck)){
-									t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,-10,v2_newPos.y);	
+							t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,0,v2_newPos.y);	
+							bool b_spotTaken = false;
+							for(int k = 0; k < player; k++) {
+								if(Mathf.Abs(v2_newPos.x/i_chunkSize-v2_curPos[k].x) <= i_detailRegion && Mathf.Abs(v2_newPos.y/i_chunkSize-v2_curPos[k].y) <= i_detailRegion){
+									b_spotTaken = true;
+								}
 							}
+							RaycastHit hit;
+							if(b_spotTaken || Physics.Raycast(new Vector3(v2_newPos.x,i_yRes,v2_newPos.y),-Vector3.up,out hit,i_yRes,lm_trackCheck)){
+									if(t_detailedTerrain[player,i,j].gameObject.activeSelf)
+										t_detailedTerrain[player,i,j].gameObject.SetActive(false);
+								}
 							else {
-								t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,0,v2_newPos.y);
+								if(!t_detailedTerrain[player,i,j].gameObject.activeSelf)
+									t_detailedTerrain[player,i,j].gameObject.SetActive(true);
 								TransformMesh(t_detailedTerrain[player,i,j].gameObject,v2_newPos,1f,false);
 								}
 						}
@@ -258,12 +305,21 @@ public class c_terraingen_r6 : MonoBehaviour {
 						if(t_detailedTerrain[player,i,j].position.x < Mathf.Floor(v2_refPos.x-i_chunkSize*(i_detailRegion*2)) &&
 							t_detailedTerrain[player,i,j].position.z >= Mathf.Floor(v2_refPos.y) && t_detailedTerrain[player,i,j].position.z < Mathf.Floor(v2_refPos.y)+i_chunkSize){
 							v2_newPos = new Vector2(t_detailedTerrain[player,i,j].position.x+i_chunkSize*(i_detailRegion*2+1),t_detailedTerrain[player,i,j].position.z);
-							RaycastHit hit;
-							if(Physics.Raycast(new Vector3(v2_newPos.x,i_yRes,v2_newPos.y),-Vector3.up,out hit,i_yRes,lm_trackCheck)){
-									t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,-10,v2_newPos.y);	
+							t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,0,v2_newPos.y);	
+							bool b_spotTaken = false;
+							for(int k = 0; k < player; k++) {
+								if(Mathf.Abs(v2_newPos.x/i_chunkSize-v2_curPos[k].x) <= i_detailRegion && Mathf.Abs(v2_newPos.y/i_chunkSize-v2_curPos[k].y) <= i_detailRegion){
+									b_spotTaken = true;
+								}
 							}
+							RaycastHit hit;
+							if(b_spotTaken || Physics.Raycast(new Vector3(v2_newPos.x,i_yRes,v2_newPos.y),-Vector3.up,out hit,i_yRes,lm_trackCheck)){
+									if(t_detailedTerrain[player,i,j].gameObject.activeSelf)
+										t_detailedTerrain[player,i,j].gameObject.SetActive(false);
+								}
 							else {
-								t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,0,v2_newPos.y);
+								if(!t_detailedTerrain[player,i,j].gameObject.activeSelf)
+									t_detailedTerrain[player,i,j].gameObject.SetActive(true);
 								TransformMesh(t_detailedTerrain[player,i,j].gameObject,v2_newPos,1f,false);
 								}
 						}
@@ -272,12 +328,21 @@ public class c_terraingen_r6 : MonoBehaviour {
 						if(t_detailedTerrain[player,i,j].position.x >= Mathf.Floor(v2_refPos.x+i_chunkSize*(i_detailRegion*2+1)) &&
 							t_detailedTerrain[player,i,j].position.z >= Mathf.Floor(v2_refPos.y) && t_detailedTerrain[player,i,j].position.z < Mathf.Floor(v2_refPos.y)+i_chunkSize){						
 							v2_newPos = new Vector2(t_detailedTerrain[player,i,j].position.x-i_chunkSize*(i_detailRegion*2+1),t_detailedTerrain[player,i,j].position.z);
-							RaycastHit hit;
-							if(Physics.Raycast(new Vector3(v2_newPos.x,i_yRes,v2_newPos.y),-Vector3.up,out hit,i_yRes,lm_trackCheck)){
-									t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,-10,v2_newPos.y);	
+							t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,0,v2_newPos.y);	
+							bool b_spotTaken = false;
+							for(int k = 0; k < player; k++) {
+								if(Mathf.Abs(v2_newPos.x/i_chunkSize-v2_curPos[k].x) <= i_detailRegion && Mathf.Abs(v2_newPos.y/i_chunkSize-v2_curPos[k].y) <= i_detailRegion){
+									b_spotTaken = true;
+								}
 							}
+							RaycastHit hit;
+							if(b_spotTaken || Physics.Raycast(new Vector3(v2_newPos.x,i_yRes,v2_newPos.y),-Vector3.up,out hit,i_yRes,lm_trackCheck)){
+									if(t_detailedTerrain[player,i,j].gameObject.activeSelf)
+										t_detailedTerrain[player,i,j].gameObject.SetActive(false);
+								}
 							else {
-								t_detailedTerrain[player,i,j].position = new Vector3(v2_newPos.x,0,v2_newPos.y);
+								if(!t_detailedTerrain[player,i,j].gameObject.activeSelf)
+									t_detailedTerrain[player,i,j].gameObject.SetActive(true);
 								TransformMesh(t_detailedTerrain[player,i,j].gameObject,v2_newPos,1f,false);
 								}
 						}
@@ -286,7 +351,6 @@ public class c_terraingen_r6 : MonoBehaviour {
 				}
 			}
 		}
-
 	}
 
 
@@ -296,7 +360,8 @@ public class c_terraingen_r6 : MonoBehaviour {
 		TransformMesh(go_track,new Vector2(go_track.transform.position.x,go_track.transform.position.z),1f,true);
 		RaycastHit hit;
 		if(Physics.Raycast(new Vector3(v2_trackPos.x,i_yRes,v2_trackPos.y),-Vector3.up,out hit,i_yRes,lm_terrainCheck)){
-				hit.transform.position = new Vector3(hit.transform.position.x,-10,hit.transform.position.z);
+			if(hit.transform.gameObject.activeSelf)
+				hit.transform.gameObject.SetActive(false);
 			}
 			//t_detailedTerrain[i_player,i,j].GetComponent<Renderer>().material.color = Color.red
 		for(int i = (int)v2_trackPos.x-1; i < (int)v2_trackPos.x+2; i++) {
@@ -328,10 +393,12 @@ public class c_terraingen_r6 : MonoBehaviour {
 
 					RaycastHit hit;
 					if(!Physics.Raycast(new Vector3(i_x,i_yRes,i_y),-Vector3.up,out hit, i_yRes, lm_trackCheck)){
+						go_terrainObjects[i,j].SetActive(true);
 						TransformMesh(go_terrainObjects[i,j],new Vector2(i_x,i_y),1f,false);
 					}
 					else{
-						go_terrainObjects[i,j].transform.position = new Vector3(i,-10,j);				
+						//go_terrainObjects[i,j].transform.position = new Vector3(i,-10,j);				
+						go_terrainObjects[i,j].SetActive(false);
 					}
 				}
 			}
