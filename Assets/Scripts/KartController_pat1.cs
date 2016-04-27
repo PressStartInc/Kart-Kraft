@@ -50,38 +50,6 @@ public class KartController_pat1 : MonoBehaviour {
 	if(Physics.Raycast(transform.TransformPoint(0,10,0),-Vector3.up,c_terrainGen.i_yRes,c_terrainGen.lm_trackCheck)){
 			b_onTrack = true;
 		}
-		v2_pos = new Vector2(transform.position.x,transform.position.z);
-		transform.Translate(0,0,f_zVelocity*Time.deltaTime);
-		l_track = c_terrainGen.l_track;
-		f_curY = transform.position.y;
-		f_curZ = transform.position.z;
-		b_onTrack = false;
-		b_bumperOnTrack = false;
-		if(f_mVelocity > 0f)
-			v2_bumperPos = new Vector2(transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).z);
-		else if(f_mVelocity < 0f) 
-			v2_bumperPos= new Vector2(transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).z);
-		else v2_bumperPos = v2_pos;
-		for(int i = 0; i < l_track.Count;i++) {
-			if(l_track[i].transform.position.x == Mathf.Round(v2_pos.x) && l_track[i].transform.position.z == Mathf.Round(v2_pos.y))
-				b_onTrack = true;
-			if(l_track[i].transform.position.x == Mathf.Round(v2_bumperPos.x) && 
-				l_track[i].transform.position.z == Mathf.Round(v2_bumperPos.y))
-					b_bumperOnTrack = true;			
-			}
-		if(f_mVelocity >= 0){
-			if(b_bumperOnTrack)
-				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
-			else 
-				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
-			}
-		else {
-			if(b_bumperOnTrack)
-				f_bumperY = c_terrainGen.SampleTerrain(v2_bumperPos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
-			else 
-				f_bumperY = Mathf.Ceil(c_terrainGen.SampleTerrain(new Vector2(Mathf.Round(v2_bumperPos.x),Mathf.Round(v2_bumperPos.y)),c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
-			}
-
 		f_zDelta = (f_curZ-f_prevZ)/Time.deltaTime;
 		f_yDelta = (f_curY-f_prevY)/Time.deltaTime;
 
