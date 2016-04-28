@@ -1,10 +1,16 @@
 fileFormatVersion: 2
 guid: 4e2876803764d12499acb5eb89d5f1b3
-timeCreated: 1460927002
+timeCreated: 1461735396
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - c_waypoint: {instanceID: 0}
+  - c_trackgen: {instanceID: 0}
+  - c_terraingen: {instanceID: 0}
+  - go_powerup: {fileID: 153554, guid: a3d30e10295213945bce4d5d5134f12e, type: 2}
+  - t_leader: {instanceID: 0}
+  - i_trackCollider: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

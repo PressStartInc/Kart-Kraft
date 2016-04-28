@@ -16,6 +16,7 @@ public class c_AI_r1 : MonoBehaviour {
 	public int i_turnDirection;
 	public AIState state;
 	public Transform t_debugBall;
+	public bool b_useItem;
 	// Use this for initialization
 	public enum AIState {
 		leader,
