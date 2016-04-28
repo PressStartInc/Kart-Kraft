@@ -40,8 +40,8 @@ public class KartController_pat1 : MonoBehaviour {
 		v2_pos = new Vector2(transform.position.x,transform.position.z);
 		if (Input.GetButton("p"+s_player+"Drift"))
 		{
-			f_driftVelocity = f_maxDriftVelocity * f_normalTurnStrength;
-			transform.Translate((f_driftVelocity*f_normalTurnStrength)*Time.deltaTime,0,f_zVelocity*Time.deltaTime);
+			f_driftVelocity = f_maxDriftVelocity * -f_normalTurnStrength;
+			transform.Translate((f_driftVelocity)*Time.deltaTime,0,f_zVelocity*Time.deltaTime);
 		}
 		else
 			transform.Translate(0,0,f_zVelocity*Time.deltaTime);
@@ -119,13 +119,13 @@ public class KartController_pat1 : MonoBehaviour {
 		f_normalTurnStrength = Mathf.Clamp((Input.GetAxis("p"+s_player+"Steer") / 0.08906883f), -1.0f, 1.0f);
 		if	((!b_AI && (f_normalTurnStrength < 0)|| Input.GetKey(KeyCode.A)) || (b_AI && i_AIDirection == 0)){
 			if(f_mVelocity > 0)
-				transform.Rotate(0,-(f_modTurnStrength+Mathf.Abs(f_driftVelocity*5))*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
+				transform.Rotate(0,(-f_modTurnStrength-f_driftVelocity)*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
 			else
 				transform.Rotate(0,f_modTurnStrength*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
 		}
 		else if((!b_AI && (f_normalTurnStrength > 0) || Input.GetKey(KeyCode.D)) || (b_AI && i_AIDirection == 1)) {
 			if(f_mVelocity > 0)
-				transform.Rotate(0,(f_modTurnStrength+Mathf.Abs(f_driftVelocity*5))*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
+				transform.Rotate(0,(f_modTurnStrength-f_driftVelocity)*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
 			else 
 				transform.Rotate(0,-f_modTurnStrength*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
 		}
