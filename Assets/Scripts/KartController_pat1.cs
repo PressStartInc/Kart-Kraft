@@ -14,13 +14,15 @@ public class KartController_pat1 : MonoBehaviour {
 	public List<Transform> l_track;
 	public float f_radius;
 	public float f_acceleration, f_gravity;
-	public float f_mVelocity, f_zVelocity, f_yVelocity;
+	public float f_mVelocity, f_zVelocity, f_yVelocity, f_xVelocity;
 	public float f_mMaxVelocity;
 	public float f_zAngle, f_zAngleDelta,f_angleBreak;
-	public float f_prevY,f_curY,f_prevZ,f_curZ,f_yDelta,f_zDelta;
+	public float f_prevX, f_curX, f_prevY,f_curY,f_prevZ,f_curZ, f_xDelta, f_yDelta, f_zDelta;
 	public float f_ySample;
 	public float f_slowDownValue, f_handbreakValue;
 	public float f_turnStrength,f_modTurnStrength;
+	public float f_driftStrength, f_driftVelocity, f_maxDriftVelocity;
+	public float f_normalTurnStrength;
 	public float f_bumperY;
 	public string s_player;
 	
@@ -35,23 +37,31 @@ public class KartController_pat1 : MonoBehaviour {
 	}
 	
 	public void Update(){
-	v2_pos = new Vector2(transform.position.x,transform.position.z);
-	transform.Translate(0,0,f_zVelocity*Time.deltaTime);
-//	v2_tracks = c_terrainGen.v2_tracks;
-	f_curY = transform.position.y;
-	f_curZ = transform.position.z;
-	b_onTrack = false;
-	b_bumperOnTrack = false;
-	if(f_mVelocity > 0f)
-		v2_bumperPos = new Vector2(transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).z);
-	else if(f_mVelocity < 0f)
-		v2_bumperPos= new Vector2(transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).z);
-	else v2_bumperPos = v2_pos;
-	if(Physics.Raycast(transform.TransformPoint(0,10,0),-Vector3.up,c_terrainGen.i_yRes,c_terrainGen.lm_trackCheck)){
+		v2_pos = new Vector2(transform.position.x,transform.position.z);
+		if (Input.GetButton("p"+s_player+"Drift"))
+		{
+			f_driftVelocity = f_maxDriftVelocity * f_normalTurnStrength;
+			transform.Translate((f_driftVelocity*f_normalTurnStrength)*Time.deltaTime,0,f_zVelocity*Time.deltaTime);
+		}
+		else
+			transform.Translate(0,0,f_zVelocity*Time.deltaTime);
+	//	v2_tracks = c_terrainGen.v2_tracks;
+		f_curX = transform.position.x;
+		f_curY = transform.position.y;
+		f_curZ = transform.position.z;
+		b_onTrack = false;
+		b_bumperOnTrack = false;
+		if(f_mVelocity > 0f)
+			v2_bumperPos = new Vector2(transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,c_kartAngleCalc.f_kartLength/2f).z);
+		else if(f_mVelocity < 0f)
+			v2_bumperPos= new Vector2(transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).x,transform.TransformPoint(0,0,-c_kartAngleCalc.f_kartLength/2f).z);
+		else v2_bumperPos = v2_pos;
+		if(Physics.Raycast(transform.TransformPoint(0,10,0),-Vector3.up,c_terrainGen.i_yRes,c_terrainGen.lm_trackCheck)){
 			b_onTrack = true;
 		}
 		f_zDelta = (f_curZ-f_prevZ)/Time.deltaTime;
 		f_yDelta = (f_curY-f_prevY)/Time.deltaTime;
+		f_xDelta = (f_curX-f_prevX)/Time.deltaTime;
 
 
 		switch(state) {
@@ -65,6 +75,7 @@ public class KartController_pat1 : MonoBehaviour {
 				Airborne();
 				break;
 			}
+		f_prevX = f_curX;
 		f_prevY = f_curY;
 		f_prevZ = f_curZ;
 	}
@@ -86,6 +97,7 @@ public class KartController_pat1 : MonoBehaviour {
 		f_zVelocity = f_zVelocityRatio*f_mVelocity;
 
 		//f_yVelocity = -f_yVelocityRatio*f_mVelocity;
+		f_xVelocity = f_xDelta;
 		f_yVelocity = f_yDelta;
 
 		f_modTurnStrength = f_turnStrength*Mathf.Abs(1f-Mathf.Abs(Mathf.Abs(f_mVelocity)-f_mMaxVelocity*0.75f)/(f_mMaxVelocity*0.75f));		
@@ -104,18 +116,18 @@ public class KartController_pat1 : MonoBehaviour {
 
 		transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);	
 
-
-		if	((!b_AI && (Input.GetAxis("p"+s_player+"Steer") < 0)|| Input.GetKey(KeyCode.A)) || (b_AI && i_AIDirection == 0)){
+		f_normalTurnStrength = Mathf.Clamp((Input.GetAxis("p"+s_player+"Steer") / 0.08906883f), -1.0f, 1.0f);
+		if	((!b_AI && (f_normalTurnStrength < 0)|| Input.GetKey(KeyCode.A)) || (b_AI && i_AIDirection == 0)){
 			if(f_mVelocity > 0)
-				transform.Rotate(0,-f_modTurnStrength*Time.deltaTime,0);
+				transform.Rotate(0,-(f_modTurnStrength+Mathf.Abs(f_driftVelocity*5))*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
 			else
-				transform.Rotate(0,f_modTurnStrength*Time.deltaTime,0);
+				transform.Rotate(0,f_modTurnStrength*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
 		}
-		else if((!b_AI && (Input.GetAxis("p"+s_player+"Steer") > 0) || Input.GetKey(KeyCode.D)) || (b_AI && i_AIDirection == 1)) {
+		else if((!b_AI && (f_normalTurnStrength > 0) || Input.GetKey(KeyCode.D)) || (b_AI && i_AIDirection == 1)) {
 			if(f_mVelocity > 0)
-				transform.Rotate(0,f_modTurnStrength*Time.deltaTime,0);
+				transform.Rotate(0,(f_modTurnStrength+Mathf.Abs(f_driftVelocity*5))*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
 			else 
-				transform.Rotate(0,-f_modTurnStrength*Time.deltaTime,0);
+				transform.Rotate(0,-f_modTurnStrength*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
 		}
 		
 		if((!b_AI && (Input.GetAxis("p"+s_player+"Accel") > 0) || Input.GetKey(KeyCode.W)) || (b_AI && b_AIForward)) {
@@ -163,7 +175,6 @@ public class KartController_pat1 : MonoBehaviour {
 		float f_ySample;
 		if(b_onTrack) {
 			f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
-
 		}
 		else {
 			f_ySample = Mathf.Ceil(c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
