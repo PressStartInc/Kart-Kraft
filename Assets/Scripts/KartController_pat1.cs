@@ -134,8 +134,12 @@ public class KartController_pat1 : MonoBehaviour {
 		else if(f_mVelocity >= -0.1f && f_mVelocity <= 0.1f) f_mVelocity = 0;
 		else f_mVelocity = 0f;
 		
-		if (!b_AI && Input.GetButton("p"+s_player+"HBrake"))
-			f_mVelocity = f_mVelocity - f_acceleration * 1.5f * Time.deltaTime;
+		if (!b_AI && Input.GetButton("p"+s_player+"HBrake")) {
+			if (f_mVelocity > 0)
+				f_mVelocity = f_mVelocity - f_acceleration * 1.5f * Time.deltaTime;
+			else if (f_mVelocity < 0)
+				f_mVelocity = f_mVelocity + f_acceleration * 1.5f * Time.deltaTime;
+		}
 		
 		//if (Input.GetButton("p"+s_player+"Item"))
 			//UseItem();
@@ -164,7 +168,7 @@ public class KartController_pat1 : MonoBehaviour {
 		else {
 			f_ySample = Mathf.Ceil(c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
 		}
-		if((transform.position.y+f_yVelocity*Time.deltaTime) < f_ySample && f_ySample-f_bumperY < 0.5f){
+		if((transform.position.y+f_yVelocity*Time.deltaTime) < f_ySample /*&& f_ySample-f_bumperY < 0.5f*/){
 			transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);
 			state = KartState.grounded;
 		}
