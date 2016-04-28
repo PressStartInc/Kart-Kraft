@@ -10,11 +10,12 @@ public class InvController : MonoBehaviour {
 	public bool boosting;
 	public float boostDuration;
 	float maxVelocity;
-	// Object velocity = GetComponent(KartController_pat1).f_mVelocity;
 	private KartController_pat1 kartController;
-	public String s_player;
+	public string s_player;
 	public HMissile hMissile;
-	public SMissile sMissile;
+	public GameObject sMissile;
+	public bool b_AI;
+	public c_AI_r1 AIScript;
 
 	// void OnTriggerEnter(Collider other){
 	// 	if(other.gameObject.CompareTag("PickUp")){
@@ -34,14 +35,18 @@ public class InvController : MonoBehaviour {
 	// }
 	void Start(){
 		kartController = GetComponent<KartController_pat1>();
+		AIScript = GetComponent<c_AI_r1>();
 		s_player = kartController.s_player;
+		Debug.Log("player number= "+s_player);
+		b_AI = kartController.b_AI;
 	}
 
 	void FixedUpdate(){
         if (rolling)
         {
-            if (rollTime <= 0 || Input.GetButton("p"+s_player+"Item"))
+            if (rollTime <= 0 || (b_AI && AIScript.b_useItem) || (!b_AI && Input.GetButton("p"+s_player+"Item")))
             {
+            	AIScript.b_useItem = false;
                 heldItem = item;
                 rolling = false;
             }
@@ -56,7 +61,10 @@ public class InvController : MonoBehaviour {
 			boostDuration -= Time.deltaTime;			
 		}
         Debug.Log("held item = " + heldItem);
-		if (Input.GetButton("p"+s_player+"Item")) useItem(heldItem);
+		if (AIScript.b_useItem || !b_AI && Input.GetButton("p"+s_player+"Item")) {
+			AIScript.b_useItem=false;
+			useItem(heldItem);
+		}
 	}
 
     public void getItem()
@@ -74,7 +82,7 @@ public class InvController : MonoBehaviour {
 			maxVelocity = kartController.f_mMaxVelocity;
 		}
 		if(usedItem==2){
-			sMissile = Instantiate(hMissile, transform.position, transform.rotation);
+			sMissile = (GameObject)Instantiate(hMissile, transform.position, transform.rotation);
 			heldItem=3;
 		}
 		if(usedItem==3){
