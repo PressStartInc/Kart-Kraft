@@ -220,8 +220,9 @@ public class MenuScript : MonoBehaviour {
 			biomeOptions[biome].GetComponent<Text>().color = Color.red;
 			// cpuOptions[numCPUs].GetComponent<Text>().color = Color.red;
 			
-			if (Input.GetButton("Submit") && index == 6)
+			if (Input.GetButton("Submit") && index >= 5)
 			{	
+				Debug.Log("Starting");
 				StartLevel();
 			}
 			else if (Input.GetButton("Cancel")) { index = 0; NoPress(); }
@@ -275,14 +276,15 @@ public class MenuScript : MonoBehaviour {
 		PlayerPrefs.SetInt("mountainSize", mountainSize);
 		PlayerPrefs.SetInt("biome", biome);
 		PlayerPrefs.SetInt("numCPUs", numCPUs);
-		// if (numPlayers == 1)
-			// SceneManager.LoadScene ("1P_Kart_Selection");
+		Debug.Log("Started");
+		if (numPlayers == 1)
+			SceneManager.LoadScene ("1 Player");
 		// else if (numPlayers == 2)
 			// SceneManager.LoadScene ("2P_Kart_Selection");
 		// else if (numPlayers == 3)
 			// SceneManager.LoadScene ("3P_Kart_Selection");
-		// else if (numPlayers == 4)
-			// SceneManager.LoadScene ("4P_Kart_Selection");
+		else if (numPlayers == 4)
+			SceneManager.LoadScene ("4 Player");
 		// else
 			// Debug.Log("GAME DOES NOT SUPPORT THAT NUMBER OF PLAYERS!!");
 	}
