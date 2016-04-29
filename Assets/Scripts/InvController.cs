@@ -67,6 +67,18 @@ public class InvController : MonoBehaviour {
 		}
 	}
 
+	void OnTriggerEnter(Collider other)
+	{
+		if(other.CompareTag("PowerUp")){
+		// invController = other.gameObject.transform.parent.GetComponent<InvController>();
+		// invController.getItem();
+			getItem();
+			Destroy(other.transform.gameObject);
+		}
+	}
+
+
+
     public void getItem()
     {
         item = Random.Range(1, 3);
@@ -88,6 +100,10 @@ public class InvController : MonoBehaviour {
 		if(usedItem==3){
 			sMissile.GetComponent<HMissile>().detonate();
 		}
+		if(usedItem==4){
+
+		}
+
 		heldItem = 0;
 	}	
 }
