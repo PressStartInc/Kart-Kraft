@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class c_ui : MonoBehaviour {
@@ -16,7 +17,7 @@ public class c_ui : MonoBehaviour {
 	public InvController[] c_invControllerArray;
 
 	public float f_zVelocity, f_mMaxVelocity, f_normalizedVelocity;
-	public UnityEngine.UI.Text t_winner;
+	public UnityEngine.UI.Text t_winner, t_paused;
 	public GameObject pKartMapItem;
 	public UnityEngine.UI.Image[] i_playerMapImage;
 	public RectTransform[] t_playerTransform;
@@ -29,8 +30,11 @@ public class c_ui : MonoBehaviour {
 	public UnityEngine.UI.Image i_countdown;
 	public AudioSource asTimer;
 	public AudioSource asGo;
+	
+	public bool paused = false;
 
 	void Start () {
+		t_paused.enabled = false;
 		f_countdown = 6.0f;
 		//i_numPlayers = c_terrainGen.go_focalPoint.Length;
 		c_kartController = new KartController_pat1[c_terrainGen.go_focalPoint.Length];
@@ -48,9 +52,27 @@ public class c_ui : MonoBehaviour {
 		t_playerTransform[i] = i_playerMapImage[i].rectTransform;
 		}
 	}
-
 	// Update is called once per frame
-	void Update () {
+	void Update () {	
+//Debug.Log(Input.GetButton("Pause"));
+		if (Input.GetButtonDown("Pause") == true)
+		{
+			paused = !paused;
+			if (paused)
+			{
+				Time.timeScale = 0;
+				//t_paused.enabled = true;
+			}
+			else 
+			{
+				Time.timeScale = 1;
+				t_paused.enabled = false;
+			}
+		}	
+	if ((Input.GetButton("p1Item") || Input.GetButton("p2Item") || Input.GetButton("p3Item") || Input.GetButton("p4Item"))
+		 && paused)
+	 SceneManager.LoadScene("MainMenu");
+		
 	f_countdown += -Time.deltaTime;
 	if(Mathf.Floor(f_countdown) <= 2f && Mathf.Floor(f_countdown) >= 0f){
 		i_countdown.color = new Color(1,1,0,1);
