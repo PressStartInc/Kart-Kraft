@@ -7,7 +7,7 @@ public class c_kartAngleCalc : MonoBehaviour {
 	public Transform t_box;
 	public float f_kartLength, f_kartWidth,f_lossyKartLength,f_lossyKartWidth;
 	public Vector2 v2_frontLeft, v2_frontRight, v2_backLeft, v2_backRight;
-	private float f_frontLeftHeight, f_frontRightHeight, f_backLeftHeight, f_backRightHeight;
+	public float f_frontLeftHeight, f_frontRightHeight, f_backLeftHeight, f_backRightHeight;
 	public float f_xLeftheight,f_xRightheight,f_zFrontheight,f_zBackheight;
 	public float f_xLeftRads,f_xRightRads,f_zFrontRads,f_zBackRads;
 	public float f_xAngle,f_zAngle;

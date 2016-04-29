@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class BrokenSpinOut : MonoBehaviour {
+	/*
 	public c_terraingen_r6 c_terrainGen;
 	public c_kartAngleCalc c_kartAngleCalc;
 	public KartState state;
@@ -83,7 +84,7 @@ public class BrokenSpinOut : MonoBehaviour {
 			}
 		f_prevX = f_curX;
 		f_prevY = f_curY;
-		f_prevZ = f_curZ;
+		f_prevZ = f_curZ;a
 	}
 	
 	public void Init() {
@@ -186,8 +187,8 @@ public class BrokenSpinOut : MonoBehaviour {
 		else {
 			f_ySample = Mathf.Ceil(c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_blendAmount)*c_terrainGen.i_yRes)+f_radius;
 		}
-		if((transform.position.y+f_yVelocity*Time.deltaTime) < f_ySample /*&& f_ySample-f_bumperY < 0.5f*/){
-			transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);
+		if((transform.position.y+f_yVelocity*Time.deltaTime) < f_ySample /*&& f_ySample-f_bumperY < 0.5f*///){
+	/*		transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);
 			state = KartState.grounded;
 		}
 		else transform.Translate(0,f_yVelocity*Time.deltaTime,0);
@@ -207,5 +208,5 @@ public class BrokenSpinOut : MonoBehaviour {
 		}
 		t_mesh.rotation = Quaternion.Slerp(t_mesh.rotation, Quaternion.identity, Time.time * f_spinSpeed);
 		b_amISpinningOutRightNow = false;
-	}
+	}*/
 }

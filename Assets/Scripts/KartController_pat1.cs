@@ -25,7 +25,11 @@ public class KartController_pat1 : MonoBehaviour {
 	public float f_normalTurnStrength;
 	public float f_bumperY;
 	public string s_player;
-	
+	public Sprite s_playerIcon;
+	public bool b_amISpinningOutRightNow = false;	
+	public Transform t_mesh;
+	public float f_spinTime, f_spinSpeed, f_spinSlowStrength;
+	public bool b_useItem;
 	public enum KartState {
 		init,
 		grounded,
@@ -38,13 +42,16 @@ public class KartController_pat1 : MonoBehaviour {
 	
 	public void Update(){
 		v2_pos = new Vector2(transform.position.x,transform.position.z);
-		if (Input.GetButton("p"+s_player+"Drift"))
+		if(Input.GetKeyDown(KeyCode.C) && !b_amISpinningOutRightNow) StartCoroutine(SpinOut());
+		if (!b_AI && Input.GetButton("p"+s_player+"Drift"))
 		{
 			f_driftVelocity = f_maxDriftVelocity * -f_normalTurnStrength;
 			transform.Translate((f_driftVelocity)*Time.deltaTime,0,f_zVelocity*Time.deltaTime);
 		}
-		else
+		else {
+			f_driftVelocity = 0f;
 			transform.Translate(0,0,f_zVelocity*Time.deltaTime);
+		}
 	//	v2_tracks = c_terrainGen.v2_tracks;
 		f_curX = transform.position.x;
 		f_curY = transform.position.y;
@@ -83,10 +90,11 @@ public class KartController_pat1 : MonoBehaviour {
 	public void Init() {
 		f_ySample = c_terrainGen.SampleTerrain(v2_pos,c_terrainGen.f_trackRoughness)*c_terrainGen.i_yRes+f_radius;
 		transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);	
-		state = KartState.grounded;
+
 	}
 	
 	public void Grounded() {
+		
 		f_zAngleDelta = (-Mathf.Atan2((f_yDelta),(f_zDelta))-f_zAngle);
 		f_zAngle = -Mathf.Atan2((f_yDelta),(f_zDelta));//print(f_zAngle + " " + c_kartAngleCalc.f_xAngle);
 		f_angleBreak = 20f*Mathf.Clamp(1f-Mathf.Clamp(f_mVelocity,0,f_mMaxVelocity)/(f_mMaxVelocity*1.01f),0,1f);
@@ -116,30 +124,39 @@ public class KartController_pat1 : MonoBehaviour {
 
 		transform.position = new Vector3(transform.position.x,f_ySample,transform.position.z);	
 
-		f_normalTurnStrength = Mathf.Clamp((Input.GetAxis("p"+s_player+"Steer") / 0.08906883f), -1.0f, 1.0f);
-		if	((!b_AI && (f_normalTurnStrength < 0)|| Input.GetKey(KeyCode.A)) || (b_AI && i_AIDirection == 0)){
-			if(f_mVelocity > 0)
-				transform.Rotate(0,(-f_modTurnStrength-f_driftVelocity)*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
-			else
-				transform.Rotate(0,f_modTurnStrength*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
+		if (!b_amISpinningOutRightNow) {
+			if(!b_AI)f_normalTurnStrength = Mathf.Clamp((Input.GetAxis("p"+s_player+"Steer") / 0.08906883f), -1.0f, 1.0f);
+			if	((!b_AI && (f_normalTurnStrength < 0)|| Input.GetKey(KeyCode.A)) || (b_AI && i_AIDirection == 0)){
+				if(f_mVelocity > 0)
+					transform.Rotate(0,(-f_modTurnStrength-f_driftVelocity)*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
+				else
+					transform.Rotate(0,f_modTurnStrength*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
+			}
+			else if((!b_AI && (f_normalTurnStrength > 0) || Input.GetKey(KeyCode.D)) || (b_AI && i_AIDirection == 1)) {
+				if(f_mVelocity > 0)
+					transform.Rotate(0,(f_modTurnStrength-f_driftVelocity)*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
+				else 
+					transform.Rotate(0,-f_modTurnStrength*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
+			}
 		}
-		else if((!b_AI && (f_normalTurnStrength > 0) || Input.GetKey(KeyCode.D)) || (b_AI && i_AIDirection == 1)) {
-			if(f_mVelocity > 0)
-				transform.Rotate(0,(f_modTurnStrength-f_driftVelocity)*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
-			else 
-				transform.Rotate(0,-f_modTurnStrength*Mathf.Abs(f_normalTurnStrength)*Time.deltaTime,0);
-		}
-		
+
 		if((!b_AI && (Input.GetAxis("p"+s_player+"Accel") > 0) || Input.GetKey(KeyCode.W)) || (b_AI && b_AIForward)) {
-			f_mVelocity = f_mVelocity+f_acceleration*Time.deltaTime;
-			if(f_mVelocity < 0)
-				f_mVelocity = f_mVelocity+f_handbreakValue*Time.deltaTime;
+			if (!b_amISpinningOutRightNow) {
+				f_mVelocity = f_mVelocity+f_acceleration*Time.deltaTime;
+				if(f_mVelocity < 0)
+					f_mVelocity = f_mVelocity+f_handbreakValue*Time.deltaTime;
+				}
+			else if(f_mVelocity > 0.1f) f_mVelocity = f_mVelocity-f_acceleration*f_spinSlowStrength*Time.deltaTime;
+			else if(f_mVelocity < -0.1f) f_mVelocity = f_mVelocity+f_acceleration*f_spinSlowStrength*Time.deltaTime;
+			else if(f_mVelocity >= -0.1f && f_mVelocity <= 0.1f) f_mVelocity = 0;
 
 		}
 		else if((!b_AI && (Input.GetAxis("p"+s_player+"Accel") < 0) || Input.GetKey(KeyCode.S))) {
-			f_mVelocity = f_mVelocity-f_acceleration*Time.deltaTime;
-			if(f_mVelocity > 0)
-				f_mVelocity = f_mVelocity-f_handbreakValue*Time.deltaTime;
+			if (!b_amISpinningOutRightNow) {
+				f_mVelocity = f_mVelocity-f_acceleration*Time.deltaTime;
+				if(f_mVelocity > 0)
+					f_mVelocity = f_mVelocity-f_handbreakValue*Time.deltaTime;
+				}
 		}
 		else if(f_mVelocity > 0.1f) f_mVelocity = f_mVelocity-f_acceleration*f_slowDownValue*Time.deltaTime;
 		else if(f_mVelocity < -0.1f) f_mVelocity = f_mVelocity+f_acceleration*f_slowDownValue*Time.deltaTime;
@@ -185,5 +202,29 @@ public class KartController_pat1 : MonoBehaviour {
 		}
 		else transform.Translate(0,f_yVelocity*Time.deltaTime,0);
 	}
-
+	public IEnumerator SpinOut()
+	{
+		Debug.Log("Let's spinout!");
+		b_amISpinningOutRightNow = true;
+		float time = 0;
+		Vector3 v3_origin = t_mesh.localRotation.eulerAngles;
+		print(v3_origin);
+		//Vector3 turnIncrement = new Vector3(0, f_spinSpeed * Time.deltaTime, 0);
+		while (time < f_spinTime) {
+			time += Time.deltaTime;
+			//t_mesh.transform.eulerAngles += turnIncrement;
+			float f_lerpSpinSpeed = Mathf.Lerp(0f,f_spinSpeed,Mathf.Clamp(time,0f,1f));
+			t_mesh.Rotate(transform.up * (f_lerpSpinSpeed*Time.deltaTime));
+			yield return null;
+		}
+		b_amISpinningOutRightNow = false;
+		time = 0;
+		while(time < 1f) {
+			time += Time.deltaTime;
+			t_mesh.localRotation = Quaternion.Lerp(t_mesh.localRotation,Quaternion.Euler(v3_origin),time);
+			yield return null;
+		}
+		t_mesh.localRotation = Quaternion.Euler(v3_origin);
+		
+	}
 }

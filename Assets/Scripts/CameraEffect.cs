@@ -54,7 +54,7 @@ public class CameraEffect : MonoBehaviour {
 		//transform.localPosition = new Vector3(0,6+Mathf.MoveTowards(6,,c_kartController.f_mVelocity/c_kartController.f_mMaxVelocity),-10-Mathf.MoveTowards(0,20,c_kartController.f_mVelocity/c_kartController.f_mMaxVelocity));
 		
 		float f_dist = Vector3.Distance(target.TransformPoint(v3_targetPos), this.transform.position);
-		Debug.Log(f_dist);
+//		Debug.Log(f_dist);
 	}
 	
 	void FixedUpdate() {

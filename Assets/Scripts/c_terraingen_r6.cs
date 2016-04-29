@@ -157,7 +157,8 @@ public class c_terraingen_r6 : MonoBehaviour {
 					float f_y = v2_refPos.y-v2_direction[player].y*(i_detailRegion*2+1)*i_chunkSize;
 					bool b_outside = true;
 					for(int k = 0; k < player+1; k++) {
-						if(Mathf.Abs(f_x-v2_curPos[k].x) > i_detailRegion &&  Mathf.Abs(f_y-v2_curPos[k].y) > i_detailRegion){
+//						print(v2_curPos[k] + "___ " + f_x + " -- " + Mathf.Abs(f_x-v2_curPos[k].x) + " " + f_y + " -- " + Mathf.Abs(f_y-v2_curPos[k].y));
+						if(Mathf.Abs(f_x/i_chunkSize-v2_curPos[k].x) > i_detailRegion &&  Mathf.Abs(f_y/i_chunkSize-v2_curPos[k].y) > i_detailRegion){
 							b_outside = false;
 						}
 					}
@@ -166,13 +167,14 @@ public class c_terraingen_r6 : MonoBehaviour {
 					t_newChunk.gameObject.AddComponent<MeshFilter>();
 					t_newChunk.gameObject.AddComponent<MeshRenderer>();
 					//print("Removing: " +l_chunks[i][l_chunks[i].IndexOf(go_toDestroy.transform)].name);
-
-					l_chunks[i][l_chunks[i].IndexOf(go_toDestroy.transform)] = t_newChunk;
+					l_chunks[i].Remove(go_toDestroy.transform);
+					l_chunks[i].Add(t_newChunk);
 					t_newChunk.name = "c: " + Mathf.Floor(f_x/i_chunkSize) + "," + Mathf.Floor(f_y/i_chunkSize);
 					t_newChunk.parent = t_chunkHolder[player];
 			//print(t_newChunk.name);
 					t_newChunk.position = new Vector3(f_x,0,f_y);
 			//print(t_newChunk.position);
+					print(f_x +", " + f_y);
 					GenerateChunk(t_newChunk.gameObject, new Vector2(f_x,f_y));
 					}
 					else {
@@ -297,6 +299,7 @@ public class c_terraingen_r6 : MonoBehaviour {
 			}
 		}
 		if(v2_direction.x != 0) {
+//			print(v2_refPos + " " +Mathf.Floor(v2_refPos.x+i_chunkSize*(i_detailRegion*2+1)));
 			for(int i = 0; i < i_chunkSize*(i_detailRegion*2+1);i++){
 				for(int j = 0; j < i_chunkSize*(i_detailRegion*2+1);j++) {
 					Vector2 v2_newPos;
