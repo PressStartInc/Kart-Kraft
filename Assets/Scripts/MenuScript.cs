@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour {
 
-	public Canvas QuitMenu, PlayerMenu, SeedMenu;
+	public Canvas Logo, QuitMenu, PlayerMenu, SeedMenu;
 	public Button StartText, ExitText;
 	public Button one, two, three, four, back;
 	public Button yes, no;
@@ -17,6 +17,7 @@ public class MenuScript : MonoBehaviour {
 	private int numPlayers = 0;
 	private int index = 0;
 	private int subIndex = 0;
+	public float logoDisplay;
 	private Button[] startOptions, quitOptions, playerOptions;
 	
 	private Button[] roughOptions, flatOptions, flatHeightOptions,
@@ -38,6 +39,8 @@ public class MenuScript : MonoBehaviour {
 	}
 		
 	void Start () {
+		logoDisplay = 3.0f;
+		Logo = Logo.GetComponent<Canvas>();
 		QuitMenu   = QuitMenu.GetComponent<Canvas> ();
 		PlayerMenu = PlayerMenu.GetComponent<Canvas>();
 		SeedMenu   = SeedMenu.GetComponent<Canvas>();
@@ -56,7 +59,7 @@ public class MenuScript : MonoBehaviour {
 		flatHeightOptions = new Button[4] { fhLow, fhMed, fhHigh, fhUltra};
 		mountSizeOptions  = new Button[4] { msLow, msMed, msHigh, msUltra};
 		biomeOptions      = new Button[4] { lava, lunar, terra, snow};
-		cpuOptions        = new Button[4] { oneAI, twoAI, threeAI, fourAI};
+		// cpuOptions        = new Button[4] { oneAI, twoAI, threeAI, fourAI};
 	}
 	
 	
@@ -65,6 +68,12 @@ public class MenuScript : MonoBehaviour {
 	bool inSubMenu = false;
 	bool seedMenu = false;
 	void FixedUpdate() {
+		if(logoDisplay>=0){
+			logoDisplay -= Time.deltaTime;
+		}
+		else{
+			Logo.GetComponent<CanvasRenderer>().SetAlpha(0.0f);
+		}
 		if (!seedMenu)
 		{
 			if ((Input.GetAxis("MenuUD") < 0 && !upButtonPushed) && (index+1 < 2)) {
@@ -165,9 +174,9 @@ public class MenuScript : MonoBehaviour {
 				} else if ((index == 4) && biome+1 < biomeOptions.Length) {
 					biomeOptions[biome++].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 5) && numCPUs+1 < cpuOptions.Length) {
-					cpuOptions[numCPUs++].GetComponent<Text>().color = Color.white;
-					sideButtonPushed = true;
+				// } else if ((index == 5) && numCPUs+1 < cpuOptions.Length) {
+				// 	cpuOptions[numCPUs++].GetComponent<Text>().color = Color.white;
+				// 	sideButtonPushed = true;
 				} 
 			} else if (Input.GetAxis("MenuLR") < 0 && !sideButtonPushed) {
 				if ((index == 0) && roughness-1 >= 0) {
@@ -185,9 +194,9 @@ public class MenuScript : MonoBehaviour {
 				} else if ((index == 4) && biome-1 >= 0) {
 					biomeOptions[biome--].GetComponent<Text>().color = Color.white;
 					sideButtonPushed = true;
-				} else if ((index == 5) && numCPUs-1 >= 0) {
-					cpuOptions[numCPUs--].GetComponent<Text>().color = Color.white;
-					sideButtonPushed = true;
+				// } else if ((index == 5) && numCPUs-1 >= 0) {
+				// 	cpuOptions[numCPUs--].GetComponent<Text>().color = Color.white;
+				// 	sideButtonPushed = true;
 				}  
 			} else if (Input.GetAxis("MenuLR") == 0) { sideButtonPushed = false; }
 			
@@ -199,7 +208,7 @@ public class MenuScript : MonoBehaviour {
 				upButtonPushed = true;
 			} else if (Input.GetAxis("MenuUD") == 0) { upButtonPushed = false; }
 			
-			if (index == 6)
+			if (index == 5)
 				save.GetComponent<Text>().color = Color.red;
 			else 
 				save.GetComponent<Text>().color = Color.white;
@@ -209,7 +218,7 @@ public class MenuScript : MonoBehaviour {
 			flatHeightOptions[flatHeight].GetComponent<Text>().color = Color.red;
 			mountSizeOptions[mountainSize].GetComponent<Text>().color = Color.red;
 			biomeOptions[biome].GetComponent<Text>().color = Color.red;
-			cpuOptions[numCPUs].GetComponent<Text>().color = Color.red;
+			// cpuOptions[numCPUs].GetComponent<Text>().color = Color.red;
 			
 			if (Input.GetButton("Submit") && index == 6)
 			{	
