@@ -8,6 +8,7 @@ public class c_terraingen_r6 : MonoBehaviour {
 	public GameObject go_terrainObject;
 	public GameObject go_detailObject;
 	public GameObject go_terrainStore;
+	public GameObject go_CPU;
 	public Material m_terrainMat;
 	public Material m_trackMat;
     public GameObject[] go_focalPoint, go_playerPlacement;
@@ -34,11 +35,40 @@ public class c_terraingen_r6 : MonoBehaviour {
     public Transform[] t_chunkHolder;
     public Transform[] t_detailHolder;
     public Transform t_trackHolder;
+    public Material[] m_terrainMaterials;
+    public GameObject[] go_totalKarts;
+    public int roughness, flatness, flatHeight, mountainSize, biome, numCPUs;
 	// Use this for initialization
     void Awake() {
         Time.timeScale = 1.0f;
-    }
+        if (PlayerPrefs.HasKey("roughness"))
+            roughness = PlayerPrefs.GetInt("roughness");
+        if (PlayerPrefs.HasKey("flatness"))
+            flatness = PlayerPrefs.GetInt("flatness");
+        if (PlayerPrefs.HasKey("flatHeight"))
+            flatHeight = PlayerPrefs.GetInt("flatHeight");
+        if (PlayerPrefs.HasKey("mountainSize"))
+            mountainSize = PlayerPrefs.GetInt("mountainSize");
+        if (PlayerPrefs.HasKey("biome"))
+            biome = PlayerPrefs.GetInt("biome");
+        if (PlayerPrefs.HasKey("numCPUs"))
+            numCPUs = PlayerPrefs.GetInt("numCPUs");
+    	}
 	void Start () {
+		/*go_totalKarts = new GameObject[go_focalPoint.Length + numCPUs];
+		for(int i = 0; i < go_focalPoint.Length; i++) {
+			go_totalKarts[i] = go_focalPoint[i];
+		}
+		go_focalPoint = new GameObject[go_totalKarts.Length];
+		for(int i = numCPUs-1; i < go_focalPoint.Length; i++) {
+				go_totalKarts[i] = (GameObject)Instantiate(go_CPU,Vector3.zero,Quaternion.identity);
+				go_totalKarts[i].GetComponent<KartController_pat1>().c_terrainGen = (c_terraingen_r6)this;
+				go_totalKarts[i].GetComponent<c_kartAngleCalc>().c_terrainGen = (c_terraingen_r6)this;
+				go_totalKarts[i].GetComponent<c_kartAngleCalc>().c_kartController = (KartController_r1)go_totalKarts[i].GetComponent<KartController_pat1>();
+				go_totalKarts[i].GetComponent<KartController_pat1>().c_racecontroller = go_totalKarts[0].GetComponent<c_racecontroller>();
+
+			}
+		go_focalPoint = go_totalKarts;*/
         Time.timeScale = 1.0f;
         t_trackHolder = new GameObject().transform;
         t_trackHolder.name = "Track Holder";
@@ -68,6 +98,68 @@ public class c_terraingen_r6 : MonoBehaviour {
         	t_detailHolder[i].name = "Player " + (i+1) + " Detail Holder";
 		}
 
+
+		switch(roughness) {
+			case 0:
+				f_blendAmount = 0.125f;
+				f_sampleSizes[0] = 0.2f;
+				break;
+			case 1:
+				f_blendAmount = 0.25f;
+				f_sampleSizes[0] = 0.4f;
+				break;			
+			case 2:
+				f_blendAmount = 0.5f;
+				f_sampleSizes[0] = 0.6f;
+				break;
+			case 3:
+				f_blendAmount = 0.75f;
+				f_sampleSizes[0] = 0.8f;
+				break;
+		}
+		switch(flatHeight) {
+			case 0:
+				f_elevationSmoothHeight = 0.125f;
+				break;
+			case 1:
+				f_elevationSmoothHeight = 0.25f;
+				break;
+			case 2:
+				f_elevationSmoothHeight = 0.5f;
+				break;
+			case 3:
+				f_elevationSmoothHeight = 0.75f;
+				break;
+		}
+		switch(flatness) {
+			case 0:
+				f_elevationSmoothStrength = 0.25f;
+				break;
+			case 1:
+				f_elevationSmoothStrength = 0.5f;
+				break;
+			case 2:
+				f_elevationSmoothStrength = 0.85f;
+				break;
+			case 3:
+				f_elevationSmoothStrength = 0.95f;
+				break;
+		}
+		switch(mountainSize) {
+			case 0:
+				i_yRes = 32;
+				break;
+			case 1:
+				i_yRes = 64;
+				break;
+			case 2:
+				i_yRes = 128;
+				break;
+			case 3:
+				i_yRes = 192;
+				break;
+		}
+		m_terrainMat = m_terrainMaterials[biome];
 		Init();
         for(int i = 0; i < go_focalPoint.Length; i++) {
             i_placement[i] = i;
@@ -157,7 +249,7 @@ public class c_terraingen_r6 : MonoBehaviour {
 					float f_y = v2_refPos.y-v2_direction[player].y*(i_detailRegion*2+1)*i_chunkSize;
 					bool b_outside = true;
 					for(int k = 0; k < player+1; k++) {
-//						print(v2_curPos[k] + "___ " + f_x + " -- " + Mathf.Abs(f_x-v2_curPos[k].x) + " " + f_y + " -- " + Mathf.Abs(f_y-v2_curPos[k].y));
+//							print(v2_curPos[k] + "___ " + f_x + " -- " + Mathf.Abs(f_x-v2_curPos[k].x) + " " + f_y + " -- " + Mathf.Abs(f_y-v2_curPos[k].y));
 						if(Mathf.Abs(f_x/i_chunkSize-v2_curPos[k].x) > i_detailRegion &&  Mathf.Abs(f_y/i_chunkSize-v2_curPos[k].y) > i_detailRegion){
 							b_outside = false;
 						}
@@ -174,7 +266,7 @@ public class c_terraingen_r6 : MonoBehaviour {
 			//print(t_newChunk.name);
 					t_newChunk.position = new Vector3(f_x,0,f_y);
 			//print(t_newChunk.position);
-					print(f_x +", " + f_y);
+//					print(f_x +", " + f_y);
 					GenerateChunk(t_newChunk.gameObject, new Vector2(f_x,f_y));
 					}
 					else {
@@ -204,18 +296,18 @@ public class c_terraingen_r6 : MonoBehaviour {
 //				print(v2_curPos[player] + ": " + i_x + ", " + i_y);
 				Vector2 v2_chunkPos = new Vector2(i_x,i_y);
 				float f_distance = 0;
-				for(int k = 0; k < (player+1); k++) {
-					f_distance = Vector2.Distance(v2_curPos[k],new Vector2(i-i_viewDistance,j-i_viewDistance)-v2_curPos[player]);
+				int k = 0;
+				for(k = 0; k < (player+1); k++) {
+					f_distance = Vector2.Distance(v2_chunkPos,v2_curPos[k]);
 					//if()
 				}
-				
-				for(int k = 0; k < (player+1); k++) {
+				for(k = 0; k < (player+1); k++) {
 					for(int l = 0; l < l_chunks[k].Count; l++) {
 					Vector2 v2_otherChunkPos = new Vector2(Mathf.Floor(l_chunks[k][l].transform.position.x/i_chunkSize),Mathf.Floor(l_chunks[k][l].transform.position.z)/i_chunkSize);
 					if(v2_chunkPos == v2_otherChunkPos || (Mathf.Abs(i_x-v2_curPos[player].x) <= i_detailRegion && Mathf.Abs(i_y-v2_curPos[player].y) <= i_detailRegion)) {
 						b_chunkExists = true;
 					}
-				}
+					}
 				}
 				if(!b_chunkExists && f_distance <= i_viewDistance) {
 					Transform t_newChunk = new GameObject().transform;

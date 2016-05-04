@@ -30,11 +30,10 @@ public class c_ui : MonoBehaviour {
 	public UnityEngine.UI.Image i_countdown;
 	public AudioSource asTimer;
 	public AudioSource asGo;
-	
 	public bool paused = false;
 
 	void Start () {
-		t_paused.enabled = false;
+		//t_paused.enabled = false;
 		f_countdown = 6.0f;
 		//i_numPlayers = c_terrainGen.go_focalPoint.Length;
 		c_kartController = new KartController_pat1[c_terrainGen.go_focalPoint.Length];
@@ -66,7 +65,7 @@ public class c_ui : MonoBehaviour {
 			else 
 			{
 				Time.timeScale = 1;
-				t_paused.enabled = false;
+				//t_paused.enabled = false;
 			}
 		}	
 	if ((Input.GetButton("p1Item") || Input.GetButton("p2Item") || Input.GetButton("p3Item") || Input.GetButton("p4Item"))
@@ -104,10 +103,11 @@ public class c_ui : MonoBehaviour {
 //			print(f_normalizedVelocity);
 			float f_needleDegree = 270+(80*Mathf.Clamp(f_normalizedVelocity,0,Mathf.Infinity));
 			 i_SpeedometerNeedle[i].transform.Rotate(Vector3.fwd*f_needleDegree);
-			 f_playerMapPos[i] = f_iconStartPos + (c_terrainGen.i_waypoint[i] / (float)c_waypointGen.i_maxWaypoints)*(f_iconEndPos-f_iconStartPos);
+			 
 			 c_invControllerArray[i]=c_terrainGen.go_focalPoint[i].GetComponent<InvController>();
 		}
-	for(int i = 0; i < c_terrainGen.go_focalPoint.Length; i++) {
+		for(int i = 0; i < c_terrainGen.go_focalPoint.Length; i++) {
+			f_playerMapPos[i] = f_iconStartPos + (c_terrainGen.i_waypoint[i] / (float)c_waypointGen.i_maxWaypoints)*(f_iconEndPos-f_iconStartPos);
 		t_playerTransform[i].transform.position = new Vector3(f_playerMapPos[i],t_playerTransform[i].transform.position.y,t_playerTransform[i].transform.position.z);
 		}
 	}

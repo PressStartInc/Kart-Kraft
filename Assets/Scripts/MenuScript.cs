@@ -24,6 +24,7 @@ public class MenuScript : MonoBehaviour {
         mountSizeOptions, biomeOptions, cpuOptions;
 
 	void Awake() {
+		Time.timeScale = 1f;
 		if (PlayerPrefs.HasKey("roughness"))
 			roughness = PlayerPrefs.GetInt("roughness");
 		if (PlayerPrefs.HasKey("flatness"))

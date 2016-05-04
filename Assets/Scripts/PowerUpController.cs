@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PowerUpController : MonoBehaviour {
 
-    private InvController invController;
+    public Transform t_parent;
 	// Use this for initialization
 	void Start () {
 		
@@ -16,9 +16,7 @@ public class PowerUpController : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
-        invController = other.gameObject.transform.parent.GetComponent<InvController>();
-        invController.getItem();
-        Destroy(gameObject);
+
     }
 
 }

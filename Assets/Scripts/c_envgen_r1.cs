@@ -10,7 +10,10 @@ public class c_envgen_r1 : MonoBehaviour {
     public float f_sunSize, f_atmosphere, f_exposure, f_skyIntensity;
     
 	// Use this for initialization
+    void Awake() {
+}
 	void Start () {
+
     //go_directionalLight.transform.Rotate(45f,Random.Range(0f,170f),Random.Range(0f,170f));
 	go_directionalLight.GetComponent<Light>().intensity = Random.Range(0.1f,1.5f);
     int i_numColorComponents = Random.Range(0,2)+1;

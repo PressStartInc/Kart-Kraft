@@ -92,10 +92,12 @@ public class InvController : MonoBehaviour {
 		if(other.CompareTag("PowerUp")){
 		// invController = other.gameObject.transform.parent.GetComponent<InvController>();
 		// invController.getItem();
-			getItem();
-			Destroy(other.transform.gameObject);
+			if(other.GetComponent<PowerUpController>().t_parent != transform) {
+				getItem();
+				Destroy(other.transform.gameObject);
+			}
 		}
-		if(other.CompareTag("Rocket"))
+		if(other.CompareTag("Rocket")) 
 		StartCoroutine(kartController.SpinOut());
 	}
 

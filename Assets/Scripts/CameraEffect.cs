@@ -70,7 +70,7 @@ public class CameraEffect : MonoBehaviour {
 			// Vector3.RotateTowards(transform.forward, new Vector3(targetDir.x,f_ylookPos,targetDir.z), 1.25f, 0.0F);
 		// }
 		
-		if (Input.GetAxis("p"+s_player+"CamY") > 0)
+		if (false)
 			transform.LookAt(target.transform.position+new Vector3(0, 1f, 0));// doLeanUp();
 		else if (Input.GetAxis("p"+s_player+"CamY") < 0)
 			transform.LookAt(target.transform.position+new Vector3(0, -0.5f, 0));// doLeanDown();
